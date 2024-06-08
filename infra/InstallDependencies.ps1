@@ -1,12 +1,3 @@
-﻿param (
-    [string]$GithubRepoUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/Testing/CreateVM.ps1",
-    [string]$VMName = "UbuntuServerVM",
-    [string]$VHDUrl = "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:virtualbox/U/24.04/UbuntuServer_24.04_VB.7z",
-    [string]$OSType = "Ubuntu_64",
-    [int]$MemorySize = 2048,
-    [int]$CPUs = 2
-)
-
 # Functie om een bestand te downloaden
 function Download-File {
     param (
