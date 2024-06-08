@@ -1,0 +1,10 @@
+[
+  {
+    "OS": "Ubuntu Server 24.04",
+    "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:vmware/U/24.04/UbuntuServer_24.04_VM.7z"
+  },
+  {
+    "OS": "Debian 12",
+    "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:dlhz157/VMware/D/12/Debian_12.0.0_VMM.7z"
+  }
+]
