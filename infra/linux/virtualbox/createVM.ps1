@@ -1,10 +1,10 @@
 # Define the VM parameters
 $vmName1 = "Test1"
 $vmName2 = "Test2"
-$vmOSType = "Ubuntu_64" # Choose the OS type you want
+$vmOSType = "Ubuntu_64" 
 $vmBaseFolder = "C:\VirtualMachines"
-$vhdUrl1 = "http://example.com/path/to/your/first/vhd.7z"
-$vhdUrl2 = "http://example.com/path/to/your/second/vhd.7z"
+$vhdUrl1 = "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:vmware/U/24.04/UbuntuServer_24.04_VM.7z"
+$vhdUrl2 = "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:vmware/U/24.04/UbuntuServer_24.04_VM.7z"
 $downloadFolder = "C:\TempVMs"
 $sevenZipPath = "C:\Program Files\7-Zip\7z.exe" # Path to 7-Zip executable
 
