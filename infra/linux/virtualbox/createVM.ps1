@@ -1,7 +1,7 @@
 # Define the VM parameters
 $vmName1 = "Test1"
 $vmName2 = "Test2"
-$vmOSType = "Ubuntu_64" # Choose the OS type you want
+$vmOSType = "Ubuntu_64" 
 $vmBaseFolder = "C:\VirtualMachines"
 $vmdkPath = "C:\Users\stefa\Downloads\UbuntuServer_24.04_VM\UbuntuServer_24.04_VM_LinuxVMImages.COM.vmdk" # Path to the VMDK file
 $tempFolder = "C:\TempVMs"
