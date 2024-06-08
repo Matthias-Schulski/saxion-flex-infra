@@ -24,3 +24,4 @@ vboxmanage modifyvm $vmName --nic1 nat
 vboxmanage startvm $vmName --type gui
 
 Write-Output "Virtual Machine '$vmName' has been created and started successfully."
+
