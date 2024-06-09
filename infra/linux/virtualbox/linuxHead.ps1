@@ -85,8 +85,8 @@ Write-Output "List of created VMs:"
 $createdVMs | ForEach-Object { Write-Output " - $_" }
 
 foreach ($vm in $config.VMs) {
-    $vmName = "$($vm.VMName)_$studentNumber"
-    Write-Output "Checking for VM: $vmName"
+    $vmName = "$($vm.VMName)_$studentNumber".Trim()
+    Write-Output "Checking for VM: '$vmName'"
     $osTypeKey = $vm.VMVHDFile  # Use VMVHDFile field to determine the OS type
     $VHDUrl = $vhdUrlMap[$osTypeKey]
     if (-not $VHDUrl) {
@@ -102,8 +102,8 @@ foreach ($vm in $config.VMs) {
     $vmExists = $false
     foreach ($createdVM in $createdVMs) {
         Write-Output "Comparing '$vmName' with '$createdVM'"
-        if ($createdVM -eq $vmName) {
-            Write-Output "Found existing VM: $createdVM"
+        if ($createdVM.Trim() -eq $vmName) {
+            Write-Output "Found existing VM: '$createdVM'"
             $vmExists = $true
             break
         }
@@ -155,3 +155,4 @@ foreach ($vm in $config.VMs) {
 Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
 
 Write-Output "Script execution completed successfully."
+echo test
