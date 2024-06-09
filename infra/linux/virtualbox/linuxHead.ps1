@@ -81,6 +81,11 @@ if (-not (Test-Path $createdVMsPath)) {
 $createdVMs = Get-Content $createdVMsPath -Raw -ErrorAction SilentlyContinue | Out-String -ErrorAction SilentlyContinue
 $createdVMs = $createdVMs -split "`n" | ForEach-Object { $_.Trim() }
 
+# Haal de lijst van alle bestaande VM's op
+$existingVMs = & "$vboxManagePath" list vms | ForEach-Object {
+    $_ -replace '.*"(.+)".*', '$1'
+}
+
 foreach ($vm in $config.VMs) {
     $vmName = "$($vm.VMName)_$studentNumber"
     $osTypeKey = $vm.VMVHDFile  # Use VMVHDFile field to determine the OS type
@@ -95,8 +100,7 @@ foreach ($vm in $config.VMs) {
     $NetworkType = $vm.VMNetworkType
 
     # Check if the VM already exists
-    $vmExists = & "$vboxManagePath" list vms | Select-String -Pattern "`"$vmName`"" -Quiet
-    if ($vmExists) {
+    if ($existingVMs -contains $vmName) {
         Write-Output "VM $vmName already exists. Checking if it's running."
         $vmState = & "$vboxManagePath" showvminfo "$vmName" --machinereadable | Select-String -Pattern "^VMState=" | ForEach-Object { $_.Line.Split("=")[1].Trim('"') }
         if ($vmState -eq "running") {
