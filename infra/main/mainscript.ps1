@@ -1,6 +1,9 @@
 # Variabele voor config script
 [string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course2.json"
 
+# Tijdelijk wijzig de Execution Policy
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+
 # Vraag het studentennummer op
 $studentNumber = Read-Host "Please enter your student number"
 
@@ -53,5 +56,8 @@ $windowsMainScriptUrl = "voeg hier de url neer"
 $windowsMainScriptPath = "$env:Public\Downloads\WindowsMainScript.ps1"
 Download-File -url $windowsMainScriptUrl -output $windowsMainScriptPath
 & pwsh -File $windowsMainScriptPath -studentNumber $studentNumber -configPath $configLocalPath
+
+# Herstel de oorspronkelijke Execution Policy
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
 
 Write-Output "Script execution completed successfully."
