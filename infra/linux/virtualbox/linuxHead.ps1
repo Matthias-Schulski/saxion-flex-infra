@@ -81,8 +81,12 @@ if (-not (Test-Path $createdVMsPath)) {
 $createdVMs = Get-Content $createdVMsPath -Raw -ErrorAction SilentlyContinue | Out-String -ErrorAction SilentlyContinue
 $createdVMs = $createdVMs -split "`n" | ForEach-Object { $_.Trim() }
 
+Write-Output "List of created VMs:"
+$createdVMs | ForEach-Object { Write-Output " - $_" }
+
 foreach ($vm in $config.VMs) {
     $vmName = "$($vm.VMName)_$studentNumber"
+    Write-Output "Checking for VM: $vmName"
     $osTypeKey = $vm.VMVHDFile  # Use VMVHDFile field to determine the OS type
     $VHDUrl = $vhdUrlMap[$osTypeKey]
     if (-not $VHDUrl) {
@@ -98,6 +102,7 @@ foreach ($vm in $config.VMs) {
     $vmExists = $false
     foreach ($createdVM in $createdVMs) {
         if ($createdVM -eq $vmName) {
+            Write-Output "Found existing VM: $createdVM"
             $vmExists = $true
             break
         }
