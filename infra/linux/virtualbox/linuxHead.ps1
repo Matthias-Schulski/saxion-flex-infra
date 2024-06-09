@@ -54,7 +54,7 @@ $vhdLinksLocalPath = "$env:Public\Downloads\linux_vhdlink.json"
 $configureNetworkLocalPath = "$env:Public\Downloads\ConfigureNetwork.ps1"
 $createVM1LocalPath = "$env:Public\Downloads\CreateVM1.ps1"
 $modifyVMSettingsLocalPath = "$env:Public\Downloads\ModifyVMSettings.ps1"
-$createdVMsPath = "$env:Public\linux_created_vms.txt"
+$createdVMsPath = "$env:Public\created_vms.txt"
 
 # Download de JSON-bestanden en de scripts
 Download-File -url $VHDLinksUrl -output $vhdLinksLocalPath
@@ -86,6 +86,8 @@ $existingVMs = & "$vboxManagePath" list vms | ForEach-Object {
     $_ -replace '.*"(.+)".*', '$1'
 }
 
+Write-Output "Existing VMs: $($existingVMs -join ', ')"
+
 foreach ($vm in $config.VMs) {
     $vmName = "$($vm.VMName)_$studentNumber"
     $osTypeKey = $vm.VMVHDFile  # Use VMVHDFile field to determine the OS type
@@ -99,7 +101,7 @@ foreach ($vm in $config.VMs) {
     $CPUs = 2  # Default CPU count, change logic if needed
     $NetworkType = $vm.VMNetworkType
 
-    # Check if the VM already exists
+    Write-Output "Checking if VM $vmName exists..."
     if ($existingVMs -contains $vmName) {
         Write-Output "VM $vmName already exists. Checking if it's running."
         $vmState = & "$vboxManagePath" showvminfo "$vmName" --machinereadable | Select-String -Pattern "^VMState=" | ForEach-Object { $_.Line.Split("=")[1].Trim('"') }
