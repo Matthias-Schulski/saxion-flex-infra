@@ -31,7 +31,7 @@ Download-File -url $InstallPowershell7ScriptUrl -output $installPowershell7Scrip
 & powershell -File $installPowershell7ScriptPath
 
 # Installeer Dependencies
-[string]$GeneralScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/scripts/GeneralScript.ps1"
+[string]$GeneralScriptUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/Virtualbox/Installdependencies.ps1"
 $generalScriptPath = "$env:Public\Downloads\GeneralScript.ps1"
 Download-File -url $GeneralScriptUrl -output $generalScriptPath
 & pwsh -File $generalScriptPath
