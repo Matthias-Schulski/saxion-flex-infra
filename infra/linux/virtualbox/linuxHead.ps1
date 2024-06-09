@@ -77,9 +77,9 @@ if (-not (Test-Path $createdVMsPath)) {
     New-Item -ItemType File -Force -Path $createdVMsPath
 }
 
-# Lees de lijst van aangemaakte VM's
+# Lees de lijst van aangemaakte VM's en filter lege regels en dubbele invoer
 $createdVMs = Get-Content $createdVMsPath -Raw -ErrorAction SilentlyContinue | Out-String -ErrorAction SilentlyContinue
-$createdVMs = $createdVMs -split "`n" | ForEach-Object { $_.Trim() }
+$createdVMs = $createdVMs -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" } | Sort-Object -Unique
 
 Write-Output "List of created VMs:"
 $createdVMs | ForEach-Object { Write-Output " - $_" }
@@ -154,3 +154,4 @@ foreach ($vm in $config.VMs) {
 Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
 
 Write-Output "Script execution completed successfully."
+echo test
