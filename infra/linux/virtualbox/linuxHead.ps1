@@ -95,7 +95,15 @@ foreach ($vm in $config.VMs) {
     $NetworkType = $vm.VMNetworkType
 
     # Check if the VM already exists
-    if ($createdVMs -contains $vmName) {
+    $vmExists = $false
+    foreach ($createdVM in $createdVMs) {
+        if ($createdVM -eq $vmName) {
+            $vmExists = $true
+            break
+        }
+    }
+
+    if ($vmExists) {
         Write-Output "VM $vmName already exists. Checking if it's running."
         $vmState = & "$vboxManagePath" showvminfo "$vmName" --machinereadable | Select-String -Pattern "^VMState=" | ForEach-Object { $_.Line.Split("=")[1].Trim('"') }
         if ($vmState -eq "running") {
@@ -130,12 +138,10 @@ foreach ($vm in $config.VMs) {
             "-NetworkType", $NetworkType,
             "-ConfigureNetworkPath", $configureNetworkLocalPath
         )
-        Write-Output "VM $vmName is already running. Prompting user for permission to shut down."
-        $userInput = Read-Host "VM $vmName is currently running. Do you want to shut it down to apply changes? (yes/no)"
         & pwsh -File $createVM1LocalPath @arguments
 
-        
-        
+        # Voeg de naam van de aangemaakte VM toe aan created_vms.txt
+        Add-Content -Path $createdVMsPath -Value $vmName
     }
 }
 
@@ -143,4 +149,3 @@ foreach ($vm in $config.VMs) {
 Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
 
 Write-Output "Script execution completed successfully."
-echo "test"
