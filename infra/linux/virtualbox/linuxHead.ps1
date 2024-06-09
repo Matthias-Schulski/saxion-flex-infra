@@ -101,6 +101,7 @@ foreach ($vm in $config.VMs) {
     # Check if the VM already exists
     $vmExists = $false
     foreach ($createdVM in $createdVMs) {
+        Write-Output "Comparing '$vmName' with '$createdVM'"
         if ($createdVM -eq $vmName) {
             Write-Output "Found existing VM: $createdVM"
             $vmExists = $true
@@ -154,4 +155,3 @@ foreach ($vm in $config.VMs) {
 Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
 
 Write-Output "Script execution completed successfully."
-echo test
