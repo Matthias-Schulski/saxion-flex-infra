@@ -45,3 +45,4 @@ if (Check-PowerShell7Installed) {
         Write-Output "PowerShell 7 installation failed."
     }
 }
+echo trest
