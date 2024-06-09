@@ -4,8 +4,19 @@
 # Tijdelijk wijzig de Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
-# Vraag het studentennummer op
-$studentNumber = Read-Host "Please enter your student number"
+# Pad naar het bestand dat het studentnummer opslaat
+$studentNumberFilePath = "$env:Public\student_number.txt"
+
+# Controleer of het studentnummer al is opgeslagen
+if (Test-Path $studentNumberFilePath) {
+    $studentNumber = Get-Content $studentNumberFilePath -Raw
+    Write-Output "Using stored student number: $studentNumber"
+} else {
+    # Vraag het studentennummer op
+    $studentNumber = Read-Host "Please enter your student number"
+    # Sla het studentnummer op
+    Set-Content -Path $studentNumberFilePath -Value $studentNumber
+}
 
 # Functie om een bestand te downloaden
 function Download-File {
