@@ -1,5 +1,5 @@
 # Variabele voor config script
-[string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/config.json"
+[string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course2.json"
 
 # Vraag het studentennummer op
 $studentNumber = Read-Host "Please enter your student number"
