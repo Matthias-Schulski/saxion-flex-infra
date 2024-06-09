@@ -25,6 +25,10 @@ if (Check-PowerShell7Installed) {
     Write-Output "Installing PowerShell 7..."
     Start-Process msiexec.exe -ArgumentList "/I", $installerPath, "/quiet", "/norestart" -NoNewWindow -Wait
 
-    Write-Output "PowerShell 7 installation completed."
+    # Controleer opnieuw of PowerShell 7 nu is geïnstalleerd
+    if (Check-PowerShell7Installed) {
+        Write-Output "PowerShell 7 installation completed successfully."
+    } else {
+        Write-Output "PowerShell 7 installation failed."
+    }
 }
-
