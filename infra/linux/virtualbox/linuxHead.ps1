@@ -81,13 +81,6 @@ if (-not (Test-Path $createdVMsPath)) {
 $createdVMs = Get-Content $createdVMsPath -Raw -ErrorAction SilentlyContinue | Out-String -ErrorAction SilentlyContinue
 $createdVMs = $createdVMs -split "`n" | ForEach-Object { $_.Trim() }
 
-# Haal de lijst van alle bestaande VM's op
-$existingVMs = & "$vboxManagePath" list vms | ForEach-Object {
-    $_ -replace '.*"(.+)".*', '$1'
-}
-
-Write-Output "Existing VMs: $($existingVMs -join ', ')"
-
 foreach ($vm in $config.VMs) {
     $vmName = "$($vm.VMName)_$studentNumber"
     $osTypeKey = $vm.VMVHDFile  # Use VMVHDFile field to determine the OS type
@@ -101,8 +94,8 @@ foreach ($vm in $config.VMs) {
     $CPUs = 2  # Default CPU count, change logic if needed
     $NetworkType = $vm.VMNetworkType
 
-    Write-Output "Checking if VM $vmName exists..."
-    if ($existingVMs -contains $vmName) {
+    # Check if the VM already exists
+    if ($createdVMs -contains $vmName) {
         Write-Output "VM $vmName already exists. Checking if it's running."
         $vmState = & "$vboxManagePath" showvminfo "$vmName" --machinereadable | Select-String -Pattern "^VMState=" | ForEach-Object { $_.Line.Split("=")[1].Trim('"') }
         if ($vmState -eq "running") {
@@ -126,7 +119,6 @@ foreach ($vm in $config.VMs) {
         )
         & pwsh -File $modifyVMSettingsLocalPath @arguments
     } else {
-        Write-Output "Creating new VM: $vmName"
         # Roep het CreateVM1.ps1 script aan met de juiste parameters
         $arguments = @(
             "-VMName", $vmName,
