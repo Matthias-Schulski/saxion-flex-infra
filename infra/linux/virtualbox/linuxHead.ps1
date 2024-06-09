@@ -95,7 +95,8 @@ foreach ($vm in $config.VMs) {
     $NetworkType = $vm.VMNetworkType
 
     # Check if the VM already exists
-    if ($createdVMs -contains $vmName) {
+    $vmExists = & "$vboxManagePath" list vms | Select-String -Pattern "`"$vmName`"" -Quiet
+    if ($vmExists) {
         Write-Output "VM $vmName already exists. Checking if it's running."
         $vmState = & "$vboxManagePath" showvminfo "$vmName" --machinereadable | Select-String -Pattern "^VMState=" | ForEach-Object { $_.Line.Split("=")[1].Trim('"') }
         if ($vmState -eq "running") {
@@ -130,6 +131,9 @@ foreach ($vm in $config.VMs) {
             "-ConfigureNetworkPath", $configureNetworkLocalPath
         )
         & pwsh -File $createVM1LocalPath @arguments
+
+        # Voeg de naam van de aangemaakte VM toe aan created_vms.txt
+        Add-Content -Path $createdVMsPath -Value $vmName
     }
 }
 
