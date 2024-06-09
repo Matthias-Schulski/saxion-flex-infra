@@ -1,16 +1,17 @@
 # Functie om te controleren of PowerShell 7 al is geïnstalleerd
 function Check-PowerShell7Installed {
     try {
-        $pwshCommand = Get-Command pwsh -ErrorAction SilentlyContinue
-        if ($pwshCommand) {
-            Write-Output "pwsh command found at: $($pwshCommand.Source)"
-            $psVersion = & "pwsh" -NoProfile -Command '$PSVersionTable.PSVersion'
-            Write-Output "pwsh version: $($psVersion.ToString())"
+        $pwshPath = (Get-Command pwsh -ErrorAction SilentlyContinue).Source
+        if ($pwshPath) {
+            Write-Output "Found pwsh at: $pwshPath"
+            $psVersionOutput = & "pwsh" -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+            Write-Output "pwsh version output: $psVersionOutput"
+            $psVersion = [version]$psVersionOutput
             if ($psVersion.Major -ge 7) {
                 Write-Output "PowerShell 7 or higher is installed."
                 return $true
             } else {
-                Write-Output "PowerShell version is less than 7: $($psVersion.ToString())."
+                Write-Output "PowerShell version is less than 7: $psVersion"
                 return $false
             }
         } else {
