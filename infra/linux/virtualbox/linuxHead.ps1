@@ -130,6 +130,8 @@ foreach ($vm in $config.VMs) {
             "-NetworkType", $NetworkType,
             "-ConfigureNetworkPath", $configureNetworkLocalPath
         )
+        Write-Output "VM $vmName is already running. Prompting user for permission to shut down."
+        $userInput = Read-Host "VM $vmName is currently running. Do you want to shut it down to apply changes? (yes/no)"
         & pwsh -File $createVM1LocalPath @arguments
 
         
