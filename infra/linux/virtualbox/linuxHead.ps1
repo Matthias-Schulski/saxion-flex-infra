@@ -140,3 +140,4 @@ foreach ($vm in $config.VMs) {
 Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
 
 Write-Output "Script execution completed successfully."
+echo "test"
