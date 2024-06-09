@@ -23,7 +23,7 @@ function Download-File {
 ###########################ALGEMEEN#########################
 
 # Installatie van PowerShell 7
-[string]$InstallPowershell7ScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/scripts/InstallPowershell7.ps1"
+[string]$InstallPowershell7ScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/main/pwsh7install"
 $installPowershell7ScriptPath = "$env:Public\Downloads\InstallPowershell7.ps1"
 
 # Download en voer het PowerShell 7 installatie script uit
