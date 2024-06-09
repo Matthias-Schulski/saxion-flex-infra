@@ -119,6 +119,7 @@ foreach ($vm in $config.VMs) {
         )
         & pwsh -File $modifyVMSettingsLocalPath @arguments
     } else {
+        Write-Output "Creating new VM: $vmName"
         # Roep het CreateVM1.ps1 script aan met de juiste parameters
         $arguments = @(
             "-VMName", $vmName,
@@ -131,8 +132,8 @@ foreach ($vm in $config.VMs) {
         )
         & pwsh -File $createVM1LocalPath @arguments
 
-        # Voeg de naam van de aangemaakte VM toe aan created_vms.txt
-        Add-Content -Path $createdVMsPath -Value $vmName
+        
+        
     }
 }
 
