@@ -34,15 +34,28 @@ if (Check-PowerShell7Installed) {
     $installerPath = "$env:TEMP\PowerShell-7.4.2-win-x64.msi"
 
     Write-Output "Downloading PowerShell 7 installer from $installerUrl..."
-    Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+    try {
+        Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath -ErrorAction Stop
+        Write-Output "Download completed."
+    } catch {
+        Write-Output "Failed to download PowerShell 7 installer: $_"
+        exit 1
+    }
 
     Write-Output "Installing PowerShell 7 from $installerPath..."
-    Start-Process msiexec.exe -ArgumentList "/I", $installerPath, "/quiet", "/norestart" -NoNewWindow -Wait
+    try {
+        Start-Process msiexec.exe -ArgumentList "/I", $installerPath, "/quiet", "/norestart" -NoNewWindow -Wait
+        Write-Output "Installation process initiated."
+    } catch {
+        Write-Output "Failed to start PowerShell 7 installation: $_"
+        exit 1
+    }
 
     # Controleer opnieuw of PowerShell 7 nu is geïnstalleerd
     if (Check-PowerShell7Installed) {
         Write-Output "PowerShell 7 installation completed successfully."
     } else {
         Write-Output "PowerShell 7 installation failed."
+        exit 1
     }
 }
