@@ -28,6 +28,7 @@ function Check-PowerShell7Installed {
 if (Check-PowerShell7Installed) {
     Write-Output "PowerShell 7 is already installed."
 } else {
+    Write-Output "PowerShell 7 is not installed. Proceeding with installation."
     # Download en installeer PowerShell 7
     $installerUrl = "https://github.com/PowerShell/PowerShell/releases/download/v7.4.2/PowerShell-7.4.2-win-x64.msi"
     $installerPath = "$env:TEMP\PowerShell-7.4.2-win-x64.msi"
