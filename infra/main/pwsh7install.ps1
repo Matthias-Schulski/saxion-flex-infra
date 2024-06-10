@@ -17,7 +17,7 @@ function Check-PowerShell7Installed {
     }
 }
 
-# Check of PowerShell 7 al is geïnstalleerd
+# Controleer of PowerShell 7 al is geïnstalleerd
 if (Check-PowerShell7Installed) {
     Write-Output "PowerShell 7 is already installed."
 } else {
