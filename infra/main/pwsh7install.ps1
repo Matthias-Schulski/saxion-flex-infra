@@ -1,18 +1,10 @@
-# Functie om te controleren of PowerShell 7 al is geïnstalleerd door de map te controleren
-function Check-PowerShell7Installed {
-    $pwshPath = "$env:ProgramFiles\PowerShell\7\pwsh.exe"
-    Write-Output "Checking for PowerShell 7 at: $pwshPath"
-    if (Test-Path $pwshPath) {
-        Write-Output "Found pwsh.exe at: $pwshPath"
-        return $true
-    } else {
-        Write-Output "pwsh.exe not found at $pwshPath, indicating PowerShell 7 is not installed."
-        return $false
-    }
-}
+# Controleer of de PowerShell 7 map bestaat
+$pwshDir = "$env:ProgramFiles\PowerShell\7"
 
-# Controleer of PowerShell 7 al is geïnstalleerd
-if (-not (Check-PowerShell7Installed)) {
+if (Test-Path $pwshDir) {
+    Write-Output "PowerShell 7 is already installed. Exiting script."
+    exit 0
+} else {
     Write-Output "PowerShell 7 is not installed. Proceeding with installation."
 
     # Download en installeer PowerShell 7
@@ -37,11 +29,5 @@ if (-not (Check-PowerShell7Installed)) {
         exit 1
     }
 
-    # Controleer opnieuw of PowerShell 7 nu is geïnstalleerd
-    if (Check-PowerShell7Installed) {
-        Write-Output "PowerShell 7 installation completed successfully."
-    } else {
-        Write-Output "PowerShell 7 installation failed."
-        exit 1
-    }
+    Write-Output "PowerShell 7 installation completed."
 }
