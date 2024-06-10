@@ -1,12 +1,17 @@
-# Functie om te controleren of pwsh een error geeft
+# Functie om te controleren of pwsh een fout geeft
 function Check-PowerShell7Installed {
     try {
-        & "pwsh" -NoProfile -Command '$PSVersionTable.PSVersion'
+        & "pwsh" -NoProfile -Command '$PSVersionTable.PSVersion' > $null 2>&1
         Write-Output "PowerShell 7 is already installed."
         return $true
     } catch {
-        Write-Output "pwsh command failed, indicating PowerShell 7 is not installed."
-        return $false
+        if ($_.FullyQualifiedErrorId -eq "CommandNotFoundException") {
+            Write-Output "pwsh command not found, indicating PowerShell 7 is not installed."
+            return $false
+        } else {
+            Write-Output "An unexpected error occurred: $_"
+            return $false
+        }
     }
 }
 
