@@ -1,17 +1,13 @@
-# Functie om te controleren of pwsh een fout geeft
+# Functie om te controleren of PowerShell 7 al is geïnstalleerd door de map te controleren
 function Check-PowerShell7Installed {
-    try {
-        & "pwsh" -NoProfile -Command '$PSVersionTable.PSVersion' > $null 2>&1
-        Write-Output "PowerShell 7 is already installed."
+    $pwshPath = "$env:ProgramFiles\PowerShell\7\pwsh.exe"
+    Write-Output "Checking for PowerShell 7 at: $pwshPath"
+    if (Test-Path $pwshPath) {
+        Write-Output "Found pwsh.exe at: $pwshPath"
         return $true
-    } catch {
-        if ($_.FullyQualifiedErrorId -eq "CommandNotFoundException") {
-            Write-Output "pwsh command not found, indicating PowerShell 7 is not installed."
-            return $false
-        } else {
-            Write-Output "An unexpected error occurred: $_"
-            return $false
-        }
+    } else {
+        Write-Output "pwsh.exe not found at $pwshPath, indicating PowerShell 7 is not installed."
+        return $false
     }
 }
 
