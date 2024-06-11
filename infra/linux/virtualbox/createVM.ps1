@@ -13,6 +13,7 @@ if (-not $VMName -or -not $VHDUrl -or -not $OSType -or -not $MemorySize -or -not
     throw "All parameters must be provided: VMName, VHDUrl, OSType, MemorySize, CPUs, NetworkType, ConfigureNetworkPath"
 }
 
+##########FUNCTIONS###########
 # Set up the log file
 $logFilePath = "$env:Public\CreateVM.log"
 function Log-Message {
@@ -95,6 +96,8 @@ function Install-VirtualBoxExtensionPack {
     & "$vboxManagePath" extpack install "$extensionPackPath" --replace --accept-license=56be48f923303c8cababb0f812b9c3c4
     Log-Message "VirtualBox Extension Pack installed successfully."
 }
+   
+##########EXECUTION###########
 
 # Sanitize VMName
 $VMName = Remove-IllegalCharacters -name $VMName
