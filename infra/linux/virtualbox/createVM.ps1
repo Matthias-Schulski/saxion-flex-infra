@@ -1,19 +1,20 @@
-# Define the VM parameters
-$vmName1 = "Test1"
-$vmName2 = "Test2"
-$vmOSType = "Ubuntu_64" 
-$vmBaseFolder = "C:\VirtualMachines"
-$vhdUrl1 = "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:vmware/U/24.04/UbuntuServer_24.04_VM.7z"
-$vhdUrl2 = "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:vmware/U/24.04/UbuntuServer_24.04_VM.7z"
-$downloadFolder = "C:\TempVMs"
-$sevenZipPath = "C:\Program Files\7-Zip\7z.exe" # Path to 7-Zip executable
+param (
+    [string]$VMName,
+    [string]$VHDUrl,
+    [string]$OSType,
+    [int]$MemorySize,
+    [int]$CPUs,
+    [string]$NetworkType,
+    [string]$ConfigureNetworkPath
+)
 
-# Ensure the download directory exists
-if (-not (Test-Path -Path $downloadFolder)) {
-    New-Item -ItemType Directory -Path $downloadFolder | Out-Null
+# Validate input parameters
+if (-not $VMName -or -not $VHDUrl -or -not $OSType -or -not $MemorySize -or -not $CPUs -or -not $NetworkType -or -not $ConfigureNetworkPath) {
+    throw "All parameters must be provided: VMName, VHDUrl, OSType, MemorySize, CPUs, NetworkType, ConfigureNetworkPath"
 }
 
-# Function to log messages
+# Set up the log file
+$logFilePath = "$env:Public\CreateVM.log"
 function Log-Message {
     param (
         [string]$message
@@ -21,164 +22,213 @@ function Log-Message {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logMessage = "$timestamp - $message"
     Write-Output $logMessage
-    Add-Content -Path "$env:Public\CreateVM.log" -Value $logMessage
+    Add-Content -Path $logFilePath -Value $logMessage
 }
 
-# Function to download VHD files
-function DownloadVHD {
+# Function to download a file
+function Download-File {
     param (
-        [string]$vhdUrl,
-        [string]$downloadPath
+        [string]$url,
+        [string]$output
     )
-
-    Log-Message "Downloading VHD from $vhdUrl to $downloadPath"
     try {
-        $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile($vhdUrl, $downloadPath)
-        Log-Message "Download complete: $downloadPath"
+        $client = New-Object System.Net.WebClient
+        $client.DownloadFile($url, $output)
+        Log-Message "Downloaded file from $url to $output"
     } catch {
-        Log-Message "Error downloading $vhdUrl: $(${Error[0].Exception.Message})"
-        throw $_
+        Log-Message "Failed to download file from $url to $output"
+        throw
     }
 }
 
-# Function to extract VMDK from a 7z file
-function ExtractVMDK {
+# Function to extract .7z file
+function Extract-7z {
     param (
         [string]$sevenZipPath,
-        [string]$archivePath,
-        [string]$extractPath
+        [string]$inputFile,
+        [string]$outputFolder
     )
-
-    if (-not (Test-Path -Path $extractPath)) {
-        New-Item -ItemType Directory -Path $extractPath | Out-Null
+    if (Test-Path $outputFolder) {
+        Remove-Item -Recurse -Force $outputFolder
     }
+    New-Item -ItemType Directory -Force -Path $outputFolder
 
-    Log-Message "Extracting VMDK from $archivePath to $extractPath"
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $sevenZipPath
-    $startInfo.Arguments = "x `"$archivePath`" -o`"$extractPath`" -y"
+    $startInfo.Arguments = "x `"$inputFile`" -o`"$outputFolder`""
     $startInfo.RedirectStandardOutput = $true
     $startInfo.UseShellExecute = $false
     $startInfo.CreateNoWindow = $true
     $process = [System.Diagnostics.Process]::Start($startInfo)
     $output = $process.StandardOutput.ReadToEnd()
     $process.WaitForExit()
-    Log-Message "Extraction output: $output"
 
-    $vmdkFile = Get-ChildItem -Path $extractPath -Filter *.vmdk -Recurse | Select-Object -First 1
+    $vmdkFile = Get-ChildItem -Path $outputFolder -Filter *.vmdk -Recurse | Select-Object -First 1
     if (-not $vmdkFile) {
         throw "VMDK file not found after extraction."
     }
     return $vmdkFile.FullName
 }
 
-# Function to copy VMDK and assign a new UUID
-function CopyAndPrepareVMDK {
+# Remove illegal characters from the VM name
+function Remove-IllegalCharacters {
     param (
-        [string]$sourceVmdkPath,
-        [string]$targetVmdkPath
+        [string]$name
     )
-
-    Log-Message "Copying VMDK from $sourceVmdkPath to $targetVmdkPath"
-    Copy-Item -Path $sourceVmdkPath -Destination $targetVmdkPath -Force
-
-    Log-Message "Assigning new UUID to $targetVmdkPath"
-    vboxmanage internalcommands sethduuid $targetVmdkPath | Out-Null
+    $illegalChars = [System.IO.Path]::GetInvalidFileNameChars() + [System.IO.Path]::GetInvalidPathChars()
+    $sanitized = $name -replace "[$illegalChars]", ""
+    return $sanitized
 }
 
-# Function to clone the VMDK file
-function CloneVMDK {
-    param (
-        [string]$sourceVmdkPath,
-        [string]$clonedVmdkPath
+# Function to install VirtualBox Extension Pack
+function Install-VirtualBoxExtensionPack {
+    $extensionPackUrl = "https://download.virtualbox.org/virtualbox/6.1.22/Oracle_VM_VirtualBox_Extension_Pack-6.1.22.vbox-extpack"  # Pas dit aan naar de gewenste versie
+    $extensionPackPath = "$env:TEMP\Oracle_VM_VirtualBox_Extension_Pack.vbox-extpack"
+
+    $extPackInstalled = & "$vboxManagePath" list extpacks | Select-String "Oracle VM VirtualBox Extension Pack"
+    if ($extPackInstalled) {
+        Log-Message "VirtualBox Extension Pack is already installed. Skipping installation."
+        return
+    }
+
+    Download-File -url $extensionPackUrl -output $extensionPackPath
+    & "$vboxManagePath" extpack install "$extensionPackPath" --replace --accept-license=56be48f923303c8cababb0f812b9c3c4
+    Log-Message "VirtualBox Extension Pack installed successfully."
+}
+
+# Sanitize VMName
+$VMName = Remove-IllegalCharacters -name $VMName
+Log-Message "Sanitized VMName: $VMName"
+
+# Log the start of the script
+Log-Message "Script execution started. Parameters: VMName=$VMName, VHDUrl=$VHDUrl, OSType=$OSType, MemorySize=$MemorySize, CPUs=$CPUs, NetworkType=$NetworkType, ConfigureNetworkPath=$ConfigureNetworkPath"
+
+# Check if VBoxManage is available
+$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+if (-not (Test-Path $vboxManagePath)) {
+    Log-Message "VBoxManage not found. Ensure VirtualBox is installed."
+    throw "VBoxManage not found."
+}
+
+# Check if 7-Zip is available
+$sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
+if (-not (Test-Path $sevenZipPath)) {
+    Log-Message "7-Zip not found. Ensure 7-Zip is installed."
+    throw "7-Zip not found."
+}
+
+# Install VirtualBox Extension Pack
+try {
+    Install-VirtualBoxExtensionPack
+} catch {
+    Log-Message "Failed to install VirtualBox Extension Pack: $($_.Exception.Message)"
+    throw
+}
+
+# Download and extract the VHD
+$downloadsPath = "$env:Public\Downloads"
+$tempExtractedPath = "$downloadsPath\$VMName"
+$vhdLocalPath = "$env:Public\$VMName.7z"
+$vhdExtractedPath = "C:\Users\Public\LinuxVMs\$VMName"
+
+try {
+    # Ensure the downloads directory exists
+    if (-not (Test-Path $downloadsPath)) {
+        New-Item -ItemType Directory -Force -Path $downloadsPath
+    }
+
+    # Check if the file already exists
+    if (Test-Path $vhdLocalPath) {
+        Log-Message "VHD archive file already exists at $vhdLocalPath. Skipping download."
+    } else {
+        Log-Message "Downloading VHD from $VHDUrl..."
+        Download-File $VHDUrl $vhdLocalPath
+        Log-Message "Download completed. File size: $((Get-Item $vhdLocalPath).Length) bytes"
+    }
+
+    Log-Message "Extracting VHD to $tempExtractedPath..."
+    $vmdkFilePath = Extract-7z -sevenZipPath $sevenZipPath -inputFile $vhdLocalPath -outputFolder $tempExtractedPath
+    Log-Message "Extraction process completed."
+
+    if (-not $vmdkFilePath) {
+        Log-Message "Extracted VMDK file not found in $tempExtractedPath"
+        throw "Extraction failed or VMDK file not found."
+    }
+    Log-Message "VMDK file path: $vmdkFilePath"
+
+    # Ensure $vmdkFilePath is a string and correct
+    $vmdkFileName = [System.IO.Path]::GetFileName($vmdkFilePath)
+    $vmdkFilePath = Join-Path -Path $tempExtractedPath -ChildPath $vmdkFileName
+    Log-Message "Validated VMDK file path: $vmdkFilePath"
+
+    # Rename the extracted VMDK file to VMName.vmdk
+    $renamedVMDKPath = "$tempExtractedPath\$VMName.vmdk"
+    Log-Message "Renaming VMDK file from $vmdkFilePath to $renamedVMDKPath"
+    Rename-Item -Path $vmdkFilePath -NewName "$VMName.vmdk"
+    Log-Message "VMDK file renamed to $renamedVMDKPath"
+
+    # Assign a new UUID to the renamed VMDK file
+    Log-Message "Assigning new UUID to VMDK file..."
+    & "$vboxManagePath" internalcommands sethduuid "$renamedVMDKPath"
+    Log-Message "New UUID assigned to $renamedVMDKPath"
+
+    # Ensure the target directory exists
+    if (-not (Test-Path $vhdExtractedPath)) {
+        New-Item -ItemType Directory -Force -Path $vhdExtractedPath
+    }
+
+    # Clone the VMDK file to the target directory
+    $clonedVMDKPath = "$vhdExtractedPath\$VMName.vmdk"
+    Log-Message "Cloning VMDK to $clonedVMDKPath..."
+    & "$vboxManagePath" clonemedium disk "$renamedVMDKPath" "$clonedVMDKPath"
+    Log-Message "VMDK cloned successfully to $clonedVMDKPath"
+
+    # Create the VM
+    Log-Message "Creating VM..."
+    & "$vboxManagePath" createvm --name $VMName --ostype $OSType --register
+    Log-Message "VM created successfully."
+
+    # Modify VM settings
+    Log-Message "Modifying VM settings..."
+    & "$vboxManagePath" modifyvm $VMName --memory $MemorySize --cpus $CPUs --vram 16 --graphicscontroller vmsvga
+    Log-Message "VM settings modified successfully."
+
+    # Add storage controller with 1 port
+    Log-Message "Adding storage controller..."
+    & "$vboxManagePath" storagectl $VMName --name "SATA_Controller" --add sata --controller IntelAhci --portcount 1 --bootable on
+    Log-Message "Storage controller added successfully."
+
+    # Attach the cloned VMDK to the VM
+    Log-Message "Attaching cloned VMDK to VM..."
+    & "$vboxManagePath" storageattach $VMName --storagectl "SATA_Controller" --port 0 --device 0 --type hdd --medium "$clonedVMDKPath"
+    Log-Message "Cloned VMDK attached successfully."
+
+    # Configure network
+    Log-Message "Configuring network for VM..."
+    $networkArguments = @(
+        "-VMName", $VMName,
+        "-NetworkType", $NetworkType
     )
+    & pwsh -File $ConfigureNetworkPath @networkArguments
+    Log-Message "Network configuration completed successfully."
 
-    Log-Message "Cloning VMDK from $sourceVmdkPath to $clonedVmdkPath"
-    vboxmanage clonemedium disk $sourceVmdkPath $clonedVmdkPath --format VMDK --variant Standard | Out-Null
+    # Enable guest control
+    Log-Message "Enabling guest control for VM..."
+    & "$vboxManagePath" modifyvm $VMName --vrde on
+    Log-Message "Guest control enabled for VM."
+
+    # Start the VM
+    Log-Message "Starting VM..."
+    & "$vboxManagePath" startvm $VMName --type headless
+    Log-Message "VM started successfully."
+
+    # Add VM name to the list of created VMs
+    $createdVMsPath = "$env:Public\created_vms.txt"
+    Add-Content -Path $createdVMsPath -Value $VMName
+    Log-Message "VM name $VMName added to $createdVMsPath."
 }
-
-# Function to create and configure a VM
-function CreateAndConfigureVM {
-    param (
-        [string]$vmName,
-        [string]$vmOSType,
-        [string]$vmBaseFolder,
-        [string]$vmdkPath
-    )
-
-    Log-Message "Creating VM: $vmName"
-    vboxmanage createvm --name $vmName --ostype $vmOSType --register --basefolder $vmBaseFolder | Out-Null
-
-    Log-Message "Setting memory and CPU for VM: $vmName"
-    vboxmanage modifyvm $vmName --memory 2048 --cpus 2 | Out-Null
-
-    Log-Message "Adding storage controller for VM: $vmName"
-    vboxmanage storagectl $vmName --name "SATA Controller" --add sata --controller IntelAhci | Out-Null
-
-    Log-Message "Attaching VMDK file to VM: $vmName"
-    vboxmanage storageattach $vmName --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $vmdkPath | Out-Null
-
-    Log-Message "Setting boot order for VM: $vmName"
-    vboxmanage modifyvm $vmName --boot1 disk --boot2 none --boot3 none --boot4 none | Out-Null
-
-    Log-Message "Setting network for VM: $vmName"
-    vboxmanage modifyvm $vmName --nic1 nat | Out-Null
+catch {
+    Log-Message "An error occurred: $($_.Exception.Message)"
+    throw
 }
-
-# Paths for downloaded, extracted, and cloned VMDK files
-$downloadedArchivePath1 = Join-Path -Path $downloadFolder -ChildPath "DownloadedArchive1.7z"
-$downloadedArchivePath2 = Join-Path -Path $downloadFolder -ChildPath "DownloadedArchive2.7z"
-$extractedVmdkPath1 = Join-Path -Path $downloadFolder -ChildPath "ExtractedDisk1"
-$extractedVmdkPath2 = Join-Path -Path $downloadFolder -ChildPath "ExtractedDisk2"
-$tempVmdkPath1 = Join-Path -Path $downloadFolder -ChildPath "TempDisk1.vmdk"
-$tempVmdkPath2 = Join-Path -Path $downloadFolder -ChildPath "TempDisk2.vmdk"
-$clonedVmdkPath1 = Join-Path -Path $vmBaseFolder -ChildPath "$vmName1\ClonedDisk1.vmdk"
-$clonedVmdkPath2 = Join-Path -Path $vmBaseFolder -ChildPath "$vmName2\ClonedDisk2.vmdk"
-
-# Ensure the VM base directories exist
-if (-not (Test-Path -Path (Join-Path -Path $vmBaseFolder -ChildPath $vmName1))) {
-    New-Item -ItemType Directory -Path (Join-Path -Path $vmBaseFolder -ChildPath $vmName1) | Out-Null
-}
-if (-not (Test-Path -Path (Join-Path -Path $vmBaseFolder -ChildPath $vmName2))) {
-    New-Item -ItemType Directory -Path (Join-Path -Path $vmBaseFolder -ChildPath $vmName2) | Out-Null
-}
-
-# Download the VHD files
-DownloadVHD -vhdUrl $vhdUrl1 -downloadPath $downloadedArchivePath1
-DownloadVHD -vhdUrl $vhdUrl2 -downloadPath $downloadedArchivePath2
-
-# Extract the VMDK files from the downloaded archives
-$extractedVmdkFile1 = ExtractVMDK -sevenZipPath $sevenZipPath -archivePath $downloadedArchivePath1 -extractPath $extractedVmdkPath1
-$extractedVmdkFile2 = ExtractVMDK -sevenZipPath $sevenZipPath -archivePath $downloadedArchivePath2 -extractPath $extractedVmdkPath2
-
-# Ensure valid paths for extracted VMDK files
-if (-not (Test-Path -Path $extractedVmdkFile1)) {
-    throw "Extracted VMDK file not found at $extractedVmdkFile1"
-}
-if (-not (Test-Path -Path $extractedVmdkFile2)) {
-    throw "Extracted VMDK file not found at $extractedVmdkFile2"
-}
-
-# Copy and prepare the VMDK files
-CopyAndPrepareVMDK -sourceVmdkPath $extractedVmdkFile1 -targetVmdkPath $tempVmdkPath1
-CopyAndPrepareVMDK -sourceVmdkPath $extractedVmdkFile2 -targetVmdkPath $tempVmdkPath2
-
-# Clone the prepared VMDK files to the final locations
-CloneVMDK -sourceVmdkPath $tempVmdkPath1 -clonedVmdkPath $clonedVmdkPath1
-CloneVMDK -sourceVmdkPath $tempVmdkPath2 -clonedVmdkPath $clonedVmdkPath2
-
-# Create and configure the first VM
-CreateAndConfigureVM -vmName $vmName1 -vmOSType $vmOSType -vmBaseFolder $vmBaseFolder -vmdkPath $clonedVmdkPath1
-
-# Create and configure the second VM
-CreateAndConfigureVM -vmName $vmName2 -vmOSType $vmOSType -vmBaseFolder $vmBaseFolder -vmdkPath $clonedVmdkPath2
-
-# Start the VMs
-Log-Message "Starting VM: $vmName1"
-vboxmanage startvm $vmName1 --type gui | Out-Null
-
-Log-Message "Starting VM: $vmName2"
-vboxmanage startvm $vmName2 --type gui | Out-Null
-
-Write-Output "Virtual Machines '$vmName1' and '$vmName2' have been created and started successfully."
+Log-Message "Script execution completed successfully."
