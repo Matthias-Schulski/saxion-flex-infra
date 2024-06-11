@@ -34,15 +34,30 @@ function Download-File {
     }
 }
 
-###########################ALGEMEEN#########################
+# Controleer of het script opnieuw gestart moet worden
+$restartFlagFile = "$env:Public\restart_flag.txt"
 
-# Installatie van PowerShell 7
-[string]$InstallPowershell7ScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/main/pwsh7install"
-$installPowershell7ScriptPath = "$env:Public\Downloads\InstallPowershell7.ps1"
+if (-not (Test-Path $restartFlagFile)) {
+    ###########################ALGEMEEN#########################
 
-# Download en voer het PowerShell 7 installatie script uit
-Download-File -url $InstallPowershell7ScriptUrl -output $installPowershell7ScriptPath
-& powershell -File $installPowershell7ScriptPath
+    # Installatie van PowerShell 7
+    [string]$InstallPowershell7ScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/main/pwsh7install.ps1"
+    $installPowershell7ScriptPath = "$env:Public\Downloads\InstallPowershell7.ps1"
+
+    # Download en voer het PowerShell 7 installatie script uit
+    Download-File -url $InstallPowershell7ScriptUrl -output $installPowershell7ScriptPath
+    & powershell -File $installPowershell7ScriptPath
+
+    # Maak een flag-bestand om aan te geven dat de installatie van PowerShell 7 voltooid is
+    New-Item -ItemType File -Path $restartFlagFile
+
+    # Herstart PowerShell met pwsh
+    Start-Process pwsh -ArgumentList "-File `"$PSCommandPath`""
+    exit
+} else {
+    # Verwijder het flag-bestand
+    Remove-Item $restartFlagFile
+}
 
 # Installeer Dependencies
 [string]$GeneralScriptUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/Virtualbox/Installdependencies.ps1"
@@ -56,7 +71,7 @@ Download-File -url $ConfigUrl -output $configLocalPath
 
 ############################LINUX############################
 
-$linuxMainScriptUrl = "voeg hier de url neer"
+$linuxMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxHead.ps1"
 $linuxMainScriptPath = "$env:Public\Downloads\LinuxMainScript.ps1"
 Download-File -url $linuxMainScriptUrl -output $linuxMainScriptPath
 & pwsh -File $linuxMainScriptPath -studentNumber $studentNumber -configPath $configLocalPath
