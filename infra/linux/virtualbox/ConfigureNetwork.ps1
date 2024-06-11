@@ -8,7 +8,8 @@ if (-not $VMName -or -not $NetworkType) {
     throw "All parameters must be provided: VMName, NetworkType"
 }
 
-# Set up the log file
+##########Functions###########
+
 $logFilePath = "$env:Public\ConfigureNetwork.log"
 function Log-Message {
     param (
@@ -78,6 +79,8 @@ function Configure-Network {
         }
     }
 }
+
+##########EXECUTE###########
 
 # Call the function to configure the network
 try {
