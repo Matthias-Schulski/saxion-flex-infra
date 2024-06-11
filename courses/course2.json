@@ -7,7 +7,7 @@
   "VMs": [
     {
       "VMName": "VM1",
-      "VMVHDFile": "Ubuntu Server 24.04",
+      "VMVHDFile": "Linux Ubuntu Server 24.04",
       "VMNetworkType": "host-only",
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
@@ -37,7 +37,7 @@
     },
     {
       "VMName": "VM3",
-      "VMVHDFile": "Ubuntu Server 24.04",
+      "VMVHDFile": "Linux Ubuntu Server 24.04",
       "VMNetworkType": "bridged",
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
