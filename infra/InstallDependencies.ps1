@@ -126,6 +126,8 @@ function Install-VirtualBox {
 }
 
 function Install-VirtualBoxExtensionPack {
+    $vboxPath = "C:\Program Files\Oracle\VirtualBox"
+    $vboxManagePath = "$vboxPath\VBoxManage.exe"
     $extensionPackUrl = "https://download.virtualbox.org/virtualbox/7.0.18/Oracle_VM_VirtualBox_Extension_Pack-7.0.18.vbox-extpack"
     $extensionPackPath = "$env:TEMP\Oracle_VM_VirtualBox_Extension_Pack.vbox-extpack"
 
