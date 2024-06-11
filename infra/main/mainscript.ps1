@@ -1,5 +1,6 @@
 # Variabele voor config script
 [string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course2.json"
+[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
 
 # Tijdelijk wijzig de Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
@@ -34,6 +35,22 @@ function Download-File {
     }
 }
 
+# Functie om het OS-type te bepalen
+function Get-OSType {
+    param (
+        [string]$osName
+    )
+    if ($osName -match "Ubuntu") {
+        return "Ubuntu_64"
+    } elseif ($osName -match "Debian") {
+        return "Debian_64"
+    } elseif ($osName -match "Alpine") {
+        return "Alpine_64"
+    } else {
+        return "OtherLinux_64"
+    }
+}
+
 # Controleer of het script opnieuw gestart moet worden
 $restartFlagFile = "$env:Public\restart_flag.txt"
 
@@ -65,23 +82,108 @@ $generalScriptPath = "$env:Public\Downloads\GeneralScript.ps1"
 Download-File -url $GeneralScriptUrl -output $generalScriptPath
 & pwsh -File $generalScriptPath
 
-# Download het config.json bestand
+# Download de JSON-bestanden
 $configLocalPath = "$env:Public\Downloads\config.json"
+$vhdLinksLocalPath = "$env:Public\Downloads\vhdlinks.json"
 Download-File -url $ConfigUrl -output $configLocalPath
+Download-File -url $VHDLinksUrl -output $vhdLinksLocalPath
 
-############################LINUX############################
+# Lees de JSON configuratie
+$config = Get-Content $configLocalPath -Raw | ConvertFrom-Json
+$vhdLinks = Get-Content $vhdLinksLocalPath -Raw | ConvertFrom-Json
 
-$linuxMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxHead.ps1"
-$linuxMainScriptPath = "$env:Public\Downloads\LinuxMainScript.ps1"
-Download-File -url $linuxMainScriptUrl -output $linuxMainScriptPath
-& pwsh -File $linuxMainScriptPath -studentNumber $studentNumber -configPath $configLocalPath
+# Map to store OS to VHD URL
+$vhdUrlMap = @{}
+foreach ($vhdLink in $vhdLinks) {
+    $vhdUrlMap[$vhdLink.OS] = $vhdLink.VHDUrl
+}
 
-###########################WINDOWS###########################
+# Haal de CourseName op
+$courseName = $config.CourseName
 
-$windowsMainScriptUrl = "voeg hier de url neer"
-$windowsMainScriptPath = "$env:Public\Downloads\WindowsMainScript.ps1"
-Download-File -url $windowsMainScriptUrl -output $windowsMainScriptPath
-& pwsh -File $windowsMainScriptPath -studentNumber $studentNumber -configPath $configLocalPath
+# Controleer welke OS'en in de configuratie staan en roep de juiste scripts aan
+$hasLinux = $false
+$hasWindows = $false
+
+foreach ($vm in $config.VMs) {
+    if ($vm.VMVHDFile -match "Linux") {
+        $hasLinux = $true
+    } elseif ($vm.VMVHDFile -match "Windows") {
+        $hasWindows = $true
+    }
+}
+
+if ($hasLinux) {
+    ############################LINUX############################
+    $linuxMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxHead.ps1"
+    $linuxMainScriptPath = "$env:Public\Downloads\LinuxMainScript.ps1"
+    Download-File -url $linuxMainScriptUrl -output $linuxMainScriptPath
+
+    foreach ($vm in $config.VMs) {
+        if ($vm.VMVHDFile -match "Linux") {
+            $vmName = "$($vm.VMName)_$studentNumber_$courseName".Trim()
+            $osTypeKey = $vm.VMVHDFile
+            $VHDUrl = $vhdUrlMap[$osTypeKey]
+            if (-not $VHDUrl) {
+                Write-Output "VHD URL not found for $osTypeKey. Skipping VM creation for $vmName."
+                continue
+            }
+            $OSType = Get-OSType -osName $osTypeKey
+            $MemorySize = $vm.VMMemorySize
+            $CPUs = $vm.VMCpuCount
+            $NetworkType = $vm.VMNetworkType
+            $Applications = $vm.VMApplications -join ','
+
+            # Roep het Linux hoofscript aan met de juiste parameters
+            $arguments = @(
+                "-VMName", $vmName,
+                "-VHDUrl", $VHDUrl,
+                "-OSType", $OSType,
+                "-MemorySize", $MemorySize,
+                "-CPUs", $CPUs,
+                "-NetworkType", $NetworkType,
+                "-Applications", $Applications
+            )
+            & pwsh -File $linuxMainScriptPath @arguments
+        }
+    }
+}
+
+if ($hasWindows) {
+    ###########################WINDOWS###########################
+    $windowsMainScriptUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/Virtualbox/WindowsMainScript.ps1"
+    $windowsMainScriptPath = "$env:Public\Downloads\WindowsMainScript.ps1"
+    Download-File -url $windowsMainScriptUrl -output $windowsMainScriptPath
+
+    foreach ($vm in $config.VMs) {
+        if ($vm.VMVHDFile -match "Windows") {
+            $vmName = "$($vm.VMName)_$studentNumber_$courseName".Trim()
+            $osTypeKey = $vm.VMVHDFile
+            $VHDUrl = $vhdUrlMap[$osTypeKey]
+            if (-not $VHDUrl) {
+                Write-Output "VHD URL not found for $osTypeKey. Skipping VM creation for $vmName."
+                continue
+            }
+            $OSType = Get-OSType -osName $osTypeKey
+            $MemorySize = $vm.VMMemorySize
+            $CPUs = $vm.VMCpuCount
+            $NetworkType = $vm.VMNetworkType
+            $Applications = $vm.VMApplications -join ','
+
+            # Roep het Windows hoofscript aan met de juiste parameters
+            $arguments = @(
+                "-VMName", $vmName,
+                "-VHDUrl", $VHDUrl,
+                "-OSType", $OSType,
+                "-MemorySize", $MemorySize,
+                "-CPUs", $CPUs,
+                "-NetworkType", $NetworkType,
+                "-Applications", $Applications
+            )
+            & pwsh -File $windowsMainScriptPath @arguments
+        }
+    }
+}
 
 # Herstel de oorspronkelijke Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
