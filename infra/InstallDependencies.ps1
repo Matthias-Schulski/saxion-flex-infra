@@ -1,3 +1,4 @@
+
 # Functie om een bestand te downloaden
 function Download-File {
     param (
@@ -19,9 +20,6 @@ if (-not (Test-Administrator)) {
     Start-Process powershell.exe "-File $PSCommandPath" -Verb RunAs
     exit
 }
-
-# Tijdelijk wijzig de Execution Policy
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 # Functie om te controleren of Visual C++ 2019 Redistributable is geïnstalleerd
 function Is-VCRuntimeInstalled {
@@ -146,20 +144,10 @@ function Install-7Zip {
     Write-Output "7-Zip installed successfully."
 }
 
+
 # Installeer de vereiste software
 Install-VCRuntime
 Install-VirtualBox
 Install-7Zip
 
-# Download het CreateVM script van GitHub
-$createVMPath = "$env:Public\CreateVM.ps1"
-Write-Output "Downloading CreateVM script from GitHub..."
-Download-File -url $GithubRepoUrl -output $createVMPath
-Write-Output "CreateVM script downloaded successfully."
 
-# Voer het CreateVM script uit
-Start-Process powershell.exe -ArgumentList "-File $createVMPath -VMName $VMName -VHDUrl $VHDUrl -OSType $OSType -MemorySize $MemorySize -CPUs $CPUs" -Wait
-
-
-# Herstel de oorspronkelijke Execution Policy
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
