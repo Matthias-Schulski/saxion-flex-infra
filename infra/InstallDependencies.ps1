@@ -125,6 +125,22 @@ function Install-VirtualBox {
     }
 }
 
+function Install-VirtualBoxExtensionPack {
+    $extensionPackUrl = "https://download.virtualbox.org/virtualbox/7.0.18/Oracle_VM_VirtualBox_Extension_Pack-7.0.18.vbox-extpack"
+    $extensionPackPath = "$env:TEMP\Oracle_VM_VirtualBox_Extension_Pack.vbox-extpack"
+
+    $extPackInstalled = & "$vboxManagePath" list extpacks | Select-String "Oracle VM VirtualBox Extension Pack"
+    if ($extPackInstalled) {
+        Log-Message "VirtualBox Extension Pack is already installed. Skipping installation."
+        return
+    }
+
+    Download-File -url $extensionPackUrl -output $extensionPackPath
+    & "$vboxManagePath" extpack install "$extensionPackPath" --replace --accept-license=56be48f923303c8cababb0f812b9c3c4
+    Log-Message "VirtualBox Extension Pack installed successfully."
+}
+
+
 # Functie om 7-Zip te installeren
 function Install-7Zip {
     $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
@@ -148,6 +164,7 @@ function Install-7Zip {
 # Installeer de vereiste software
 Install-VCRuntime
 Install-VirtualBox
+Install-VirtualBoxExtensionPack
 Install-7Zip
 
 
