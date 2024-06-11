@@ -6,11 +6,13 @@
     [string]$ConfigureNetworkPath
 )
 
+##########CHECK PARAMETERS###########
 # Validate input parameters
 if (-not $VMName -or -not $MemorySize -or -not $CPUs -or -not $NetworkType -or -not $ConfigureNetworkPath) {
     throw "All parameters must be provided: VMName, MemorySize, CPUs, NetworkType, ConfigureNetworkPath"
 }
 
+##########FUNCTIONS###########
 # Set up the log file
 $logFilePath = "$env:Public\ModifyVMSettings.log"
 function Log-Message {
@@ -29,6 +31,8 @@ if (-not (Test-Path $vboxManagePath)) {
     Log-Message "VBoxManage not found. Ensure VirtualBox is installed."
     throw "VBoxManage not found."
 }
+
+##########EXECTUE###########
 
 # Log the start of the script
 Log-Message "Script execution started. Parameters: VMName=$VMName, MemorySize=$MemorySize, CPUs=$CPUs, NetworkType=$NetworkType, ConfigureNetworkPath=$ConfigureNetworkPath"
