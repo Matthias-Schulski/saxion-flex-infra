@@ -20,13 +20,6 @@ function Log-Message {
     Add-Content -Path $logFilePath -Value $logMessage
 }
 
-# Check if VBoxManage is available
-$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
-if (-not (Test-Path $vboxManagePath)) {
-    Log-Message "VBoxManage not found. Ensure VirtualBox is installed."
-    throw "VBoxManage not found."
-}
-
 # Function to get available bridged network adapters
 function Get-BridgedNetworkAdapters {
     $adapters = & "$vboxManagePath" list bridgedifs | Select-String -Pattern "Name: " | ForEach-Object { $_.Line.Split(":")[1].Trim() }
