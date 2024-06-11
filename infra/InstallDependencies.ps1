@@ -133,7 +133,7 @@ function Install-VirtualBoxExtensionPack {
 
     $extPackInstalled = & "$vboxManagePath" list extpacks | Select-String "Oracle VM VirtualBox Extension Pack"
     if ($extPackInstalled) {
-        Log-Message "VirtualBox Extension Pack is already installed. Skipping installation."
+        Write-Output "Extensions is already installed. Skipping installation."
         return
     }
 
