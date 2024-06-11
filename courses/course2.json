@@ -21,7 +21,7 @@
     },
     {
       "VMName": "VM2",
-      "VMVHDFile": "Debian 12",
+      "VMVHDFile": "Windows Server 2019",
       "VMNetworkType": "nat",
       "VMApplications": [
         "App1",
