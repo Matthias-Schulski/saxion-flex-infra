@@ -98,9 +98,6 @@ foreach ($vhdLink in $vhdLinks) {
     $vhdUrlMap[$vhdLink.OS] = $vhdLink.VHDUrl
 }
 
-# Haal de CourseName op
-$courseName = $config.CourseName
-
 # Controleer welke OS'en in de configuratie staan en roep de juiste scripts aan
 $hasLinux = $false
 $hasWindows = $false
@@ -121,7 +118,7 @@ if ($hasLinux) {
 
     foreach ($vm in $config.VMs) {
         if ($vm.VMVHDFile -match "Linux") {
-            $vmName = "$($vm.VMName)_$studentNumber_$courseName".Trim()
+            $vmName = "$($vm.VMName)_$studentNumber".Trim()
             $osTypeKey = $vm.VMVHDFile
             $VHDUrl = $vhdUrlMap[$osTypeKey]
             if (-not $VHDUrl) {
@@ -157,7 +154,7 @@ if ($hasWindows) {
 
     foreach ($vm in $config.VMs) {
         if ($vm.VMVHDFile -match "Windows") {
-            $vmName = "$($vm.VMName)_$studentNumber_$courseName".Trim()
+            $vmName = "$($vm.VMName)_$studentNumber".Trim()
             $osTypeKey = $vm.VMVHDFile
             $VHDUrl = $vhdUrlMap[$osTypeKey]
             if (-not $VHDUrl) {
