@@ -7,7 +7,7 @@
   "VMs": [
     {
       "VMName": "VM1",
-      "VMVHDFile": "path/to/vm1.vhd",
+      "OSType": "Windows",
       "VMNetworkType": "host-only",
       "VMApplications": [
         "App1",
@@ -21,7 +21,7 @@
     },
     {
       "VMName": "VM2",
-      "VMVHDFile": "path/to/vm2.vhd",
+      "OSType": "Windows",
       "VMNetworkType": "nat",
       "VMApplications": [
         "App1",
@@ -33,7 +33,7 @@
     },
     {
       "VMName": "VM3",
-      "VMVHDFile": "path/to/vm3.vhd",
+      "OSType": "Linux",
       "VMNetworkType": "bridged",
       "VMApplications": [
         "App3",
