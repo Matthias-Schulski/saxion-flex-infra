@@ -1,0 +1,11 @@
+//Bestand enkel om script te kunnen testen
+
+{
+  "applications": [
+    "7zip",
+    "curl",
+    "googlechrome",
+    "firefox",
+    "notepadplusplus"
+  ]
+}
