@@ -83,7 +83,7 @@ if ($vmExists) {
         $userInput = Read-Host "VM $VMName is currently running. Do you want to shut it down to apply changes? (yes/no)"
         if ($userInput -eq "yes") {
             & "$vboxManagePath" controlvm $VMName acpipowerbutton
-            Start-Sleep -Seconds 10
+            Start-Sleep -Seconds 15
         } else {
             Write-Output "Skipping changes for VM $VMName."
             exit
