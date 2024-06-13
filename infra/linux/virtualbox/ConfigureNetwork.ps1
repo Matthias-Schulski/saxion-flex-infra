@@ -8,6 +8,9 @@ if (-not $VMName -or -not $NetworkType) {
     throw "All parameters must be provided: VMName, NetworkType"
 }
 
+# Path to VBoxManage
+$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+
 ##########Functions###########
 
 $logFilePath = "$env:Public\ConfigureNetwork.log"
@@ -94,4 +97,3 @@ catch {
 }
 
 Log-Message "Script execution completed successfully."
-
