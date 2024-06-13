@@ -2,7 +2,7 @@
   "CourseName": "Virtualisatie",
   "EnvironmentVariables": {
     "ActiveDirectoryDomain": "",
-    "IPRange": "172.168.0.0"
+    "IPRange": "172.168.0.0/24"
   },
   "VMs": [
     {
