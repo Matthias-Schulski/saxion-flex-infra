@@ -1,0 +1,53 @@
+{
+  "CourseName": "Virtualisatie",
+  "EnvironmentVariables": {
+    "ActiveDirectoryDomain": "",
+    "IPRange": "172.168.0.0/24"
+  },
+  "VMs": [
+    {
+      "VMName": "VM1",
+      "VMVHDFile": "Linux Ubuntu Server 24.04",
+      "VMNetworkType": "host-only",
+      "VMCpuCount": 2,
+      "VMMemorySize": 2048,
+      "VMApplications": [
+        "App1",
+        "App2",
+        "App3"
+      ],
+      "Roles": [
+        "Domain Controller",
+        "DNS Server"
+      ]
+    },
+    {
+      "VMName": "VM2",
+      "VMVHDFile": "Windows Server 2019",
+      "VMNetworkType": "nat",
+      "VMCpuCount": 4,
+      "VMMemorySize": 4096,
+      "VMApplications": [
+        "App1",
+        "App2"
+      ],
+      "Roles": [
+        "Web Server"
+      ]
+    },
+    {
+      "VMName": "VM3",
+      "VMVHDFile": "Linux Ubuntu Server 24.04",
+      "VMNetworkType": "bridged",
+      "VMCpuCount": 2,
+      "VMMemorySize": 2048,
+      "VMApplications": [
+        "App3",
+        "App4"
+      ],
+      "Roles": [
+        "Database Server"
+      ]
+    }
+  ]
+}
