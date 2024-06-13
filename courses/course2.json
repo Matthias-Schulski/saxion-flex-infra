@@ -2,14 +2,39 @@
   "CourseName": "Virtualisatie",
   "EnvironmentVariables": {
     "ActiveDirectoryDomain": "",
-    "Sunet 1": "172.168.0.0/24"
-    netwerk type hier
+    "Subnets": [
+      {
+        "Name": "Subnet1",
+        "Network": "172.168.0.0/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet0"
+      },
+      {
+        "Name": "Subnet2",
+        "Network": "10.0.0.0/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet1"
+      },
+      {
+        "Name": "Subnet3",
+        "Network": "192.168.56.0/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet2"
+      },
+      {
+        "Name": "NATNetwork",
+        "Network": "192.168.57.0/24",
+        "Type": "natnetwork",
+        "AdapterName": "natnet1"
+      }
+    ]
   },
   "VMs": [
     {
       "VMName": "VM1",
       "VMVHDFile": "Linux Ubuntu Server 24.04",
-      "VMNetworkType": "host-only",
+      "VMNetworkTypes": ["Subnet1", "NATNetwork"],
+      "VMIPAddresses": ["172.168.0.10", "192.168.57.10"],
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
       "VMApplications": [
@@ -39,7 +64,8 @@
     {
       "VMName": "VM3",
       "VMVHDFile": "Linux Ubuntu Server 24.04",
-      "VMNetworkType": "bridged",
+      "VMNetworkTypes": ["Subnet2"],
+      "VMIPAddresses": ["10.0.0.10"],
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
       "VMApplications": [
