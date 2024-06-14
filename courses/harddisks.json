@@ -1,10 +1,16 @@
 [
   {
-    "OS": "Linux Ubuntu Server 24.04",
+    "Platform": "Linux",
+    "DistroName": "Ubuntu",
+    "DistroVariant": "Server",
+    "DistroVersion": "24.04",
     "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:vmware/U/24.04/UbuntuServer_24.04_VM.7z"
   },
   {
-    "OS": "Linux Debian 12",
+    "Platform": "Linux",
+    "DistroName": "Debian",
+    "DistroVariant": "",
+    "DistroVersion": "12",
     "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:dlhz157/VMware/D/12/Debian_12.0.0_VMM.7z"
   }
 ]
