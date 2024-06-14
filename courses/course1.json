@@ -10,9 +10,9 @@
       "OSType": "Windows",
       "VMNetworkType": "host-only",
       "VMApplications": [
-        "App1",
-        "App2",
-        "App3"
+        "notepadplusplus",
+        "googlechrome",
+        "7zip"
       ],
       "Roles": [
         "domain controller",
