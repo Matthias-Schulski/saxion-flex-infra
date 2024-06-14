@@ -51,7 +51,7 @@ function Install-ChocoApp {
 # Ophalen JSON vanaf het opgegeven lokale bestand
 try {
     $jsonContent = Get-Content -Path $JsonFilePath -Raw
-    $applications = (ConvertFrom-Json -InputObject $jsonContent).VMApplications
+    $applications = (ConvertFrom-Json -InputObject $jsonContent)
 } catch {
     Write-Host "Failed to read or parse JSON file. Error: $_"
     exit 1
