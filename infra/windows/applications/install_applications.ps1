@@ -1,5 +1,5 @@
 param (
-    [string]$JsonUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/windows/applications/applicaties.json"
+    [string]$JsonUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course1.json"
 )
 
 # Controleer of Chocolatey is geïnstalleerd
@@ -50,7 +50,7 @@ function Install-ChocoApp {
 # Ophalen JSON vanaf de opgegeven URL
 try {
     $jsonContent = Invoke-WebRequest -Uri $JsonUrl -UseBasicParsing | Select-Object -ExpandProperty Content
-    $applications = (ConvertFrom-Json -InputObject $jsonContent).applications
+    $applications = (ConvertFrom-Json -InputObject $jsonContent).VMApplications
 } catch {
     Write-Host "Failed to download or parse JSON. Error: $_"
     exit 1
