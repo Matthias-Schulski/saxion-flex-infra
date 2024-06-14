@@ -32,7 +32,10 @@
   "VMs": [
     {
       "VMName": "VM1",
-      "VMVHDFile": "Linux Ubuntu Server 24.04",
+      "Platform": "Linux",
+      "DistroName": "Ubuntu",
+      "DistroVariant": "Server",
+      "DistroVersion": "24.04",
       "VMNetworkTypes": ["Subnet1", "NATNetwork"],
       "VMIPAddresses": ["172.168.0.10", "192.168.57.10"],
       "VMCpuCount": 2,
@@ -49,7 +52,10 @@
     },
     {
       "VMName": "VM2",
-      "VMVHDFile": "Windows Server 2019",
+      "Platform": "Windows",
+      "DistroName": "Server",
+      "DistroVariant": "",
+      "DistroVersion": "2019",
       "VMNetworkType": "nat",
       "VMCpuCount": 4,
       "VMMemorySize": 4096,
@@ -63,7 +69,10 @@
     },
     {
       "VMName": "VM3",
-      "VMVHDFile": "Linux Ubuntu Server 24.04",
+      "Platform": "Linux",
+      "DistroName": "Ubuntu",
+      "DistroVariant": "Server",
+      "DistroVersion": "24.04",
       "VMNetworkTypes": ["Subnet2"],
       "VMIPAddresses": ["10.0.0.10"],
       "VMCpuCount": 2,
