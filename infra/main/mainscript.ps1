@@ -1,6 +1,6 @@
 # Variabele voor config script
 [string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course3.json"
-[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
+[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks2.json"
 
 # Tijdelijk wijzig de Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
