@@ -1,6 +1,6 @@
 # Variabele voor config script
-[string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course3.json"
-[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks2.json"
+[string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course2.json"
+[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
 
 # Tijdelijk wijzig de Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
@@ -10,11 +10,11 @@ $studentNumberFilePath = "$env:Public\student_number.txt"
 
 # Controleer of het studentnummer al is opgeslagen
 if (Test-Path $studentNumberFilePath) {
-    $studentNumber = Get-Content $studentNumberFilePath -Raw
+    $studentNumber = (Get-Content $studentNumberFilePath -Raw).Trim()
     Write-Output "Using stored student number: $studentNumber"
 } else {
     # Vraag het studentennummer op
-    $studentNumber = Read-Host "Please enter your student number"
+    $studentNumber = (Read-Host "Please enter your student number").Trim()
     # Sla het studentnummer op
     Set-Content -Path $studentNumberFilePath -Value $studentNumber
 }
@@ -38,16 +38,23 @@ function Download-File {
 # Functie om het OS-type te bepalen
 function Get-OSType {
     param (
-        [string]$osName
+        [string]$platform,
+        [string]$distroName
     )
-    if ($osName -match "Ubuntu") {
-        return "Ubuntu_64"
-    } elseif ($osName -match "Debian") {
-        return "Debian_64"
-    } elseif ($osName -match "Alpine") {
-        return "Alpine_64"
+    if ($platform -eq "Linux") {
+        if ($distroName -match "Ubuntu") {
+            return "Ubuntu_64"
+        } elseif ($distroName -match "Debian") {
+            return "Debian_64"
+        } elseif ($distroName -match "Alpine") {
+            return "Alpine_64"
+        } else {
+            return "OtherLinux_64"
+        }
+    } elseif ($platform -eq "Windows") {
+        return "Windows"
     } else {
-        return "OtherLinux_64"
+        return "Unknown"
     }
 }
 
@@ -95,41 +102,60 @@ $vhdLinks = Get-Content $vhdLinksLocalPath -Raw | ConvertFrom-Json
 # Map to store OS to VHD URL
 $vhdUrlMap = @{}
 foreach ($vhdLink in $vhdLinks) {
-    $vhdUrlMap[$vhdLink.OS] = $vhdLink.VHDUrl
+    $osKey = "{0} {1} {2} {3}" -f $vhdLink.Platform, $vhdLink.DistroName, $vhdLink.DistroVariant, $vhdLink.DistroVersion
+    $vhdUrlMap[$osKey] = $vhdLink.VHDUrl
 }
+
+# Haal de CourseName op uit de configuratie
+$courseName = $config.CourseName.Trim()
 
 # Controleer welke OS'en in de configuratie staan en roep de juiste scripts aan
 $hasLinux = $false
 $hasWindows = $false
 
 foreach ($vm in $config.VMs) {
-    if ($vm.VMVHDFile -match "Linux") {
+    if ($vm.Platform -eq "Linux") {
         $hasLinux = $true
-    } elseif ($vm.VMVHDFile -match "Windows") {
+    } elseif ($vm.Platform -eq "Windows") {
         $hasWindows = $true
     }
 }
 
 if ($hasLinux) {
     ############################LINUX############################
-    $linuxMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxHead.ps1"
+    $linuxMainScriptUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/test6/linuxmain.ps1"
     $linuxMainScriptPath = "$env:Public\Downloads\LinuxMainScript.ps1"
     Download-File -url $linuxMainScriptUrl -output $linuxMainScriptPath
 
     foreach ($vm in $config.VMs) {
-        if ($vm.VMVHDFile -match "Linux") {
-            $vmName = "$($vm.VMName)_$studentNumber".Trim()
-            $osTypeKey = $vm.VMVHDFile
+        if ($vm.Platform -eq "Linux") {
+            $vmName = ("{0}_{1}_{2}" -f $courseName, $vm.VMName.Trim(), $studentNumber)
+            $osTypeKey = "{0} {1} {2} {3}" -f $vm.Platform, $vm.DistroName, $vm.DistroVariant, $vm.DistroVersion
             $VHDUrl = $vhdUrlMap[$osTypeKey]
             if (-not $VHDUrl) {
                 Write-Output "VHD URL not found for $osTypeKey. Skipping VM creation for $vmName."
                 continue
             }
-            $OSType = Get-OSType -osName $osTypeKey
+            $OSType = Get-OSType -platform $vm.Platform -distroName $vm.DistroName
             $MemorySize = $vm.VMMemorySize
             $CPUs = $vm.VMCpuCount
-            $NetworkType = $vm.VMNetworkType
+            $NetworkTypes = $vm.VMNetworkTypes
             $Applications = $vm.VMApplications -join ','
+
+            # Construeer de argumenten voor netwerktypes en subnetten
+            $networkTypeArgs = @()
+            foreach ($networkType in $NetworkTypes) {
+                $subnet = $config.EnvironmentVariables.Subnets | Where-Object { $_.Name -eq $networkType }
+                $networkTypeArgs += @{
+                    "Type" = $subnet.Type
+                    "AdapterName" = $subnet.AdapterName
+                    "Network" = $subnet.Network
+                }
+            }
+
+            # Debug output for network types
+            Write-Output "Network Types for VM:"
+            $networkTypeArgs | ForEach-Object { Write-Output " - Type: $($_.Type), AdapterName: $($_.AdapterName), Network: $($_.Network)" }
 
             # Roep het Linux hoofscript aan met de juiste parameters
             $arguments = @(
@@ -138,8 +164,10 @@ if ($hasLinux) {
                 "-OSType", $OSType,
                 "-MemorySize", $MemorySize,
                 "-CPUs", $CPUs,
-                "-NetworkType", $NetworkType,
-                "-Applications", $Applications
+                "-NetworkTypes", ($networkTypeArgs | ConvertTo-Json -Compress),
+                "-Applications", $Applications,
+                "-ConfigureNetworkPath", $linuxMainScriptPath,
+                "-DistroName", $vm.DistroName
             )
             & pwsh -File $linuxMainScriptPath @arguments
         }
@@ -153,28 +181,32 @@ if ($hasWindows) {
     Download-File -url $windowsMainScriptUrl -output $windowsMainScriptPath
 
     foreach ($vm in $config.VMs) {
-        if ($vm.VMVHDFile -match "Windows") {
-            $vmName = "$($vm.VMName)_$studentNumber".Trim()
-            $osTypeKey = $vm.VMVHDFile
+        if ($vm.Platform -eq "Windows") {
+            $vmName = ("{0}_{1}_{2}" -f $courseName, $vm.VMName.Trim(), $studentNumber)
+            $osTypeKey = "{0} {1} {2} {3}" -f $vm.Platform, $vm.DistroName, $vm.DistroVariant, $vm.DistroVersion
             $VHDUrl = $vhdUrlMap[$osTypeKey]
             if (-not $VHDUrl) {
                 Write-Output "VHD URL not found for $osTypeKey. Skipping VM creation for $vmName."
                 continue
             }
-            $OSType = Get-OSType -osName $osTypeKey
+            $OSType = Get-OSType -platform $vm.Platform -distroName $vm.DistroName
             $MemorySize = $vm.VMMemorySize
             $CPUs = $vm.VMCpuCount
             $NetworkType = $vm.VMNetworkType
             $Applications = $vm.VMApplications -join ','
 
-            # Roep het Windows hoofscript aan met de juiste parameters
+            # Haal het subnet op
+            $subnet = $config.EnvironmentVariables.Subnets | Where-Object { $_.Name -eq $NetworkType }
+
             $arguments = @(
                 "-VMName", $vmName,
                 "-VHDUrl", $VHDUrl,
                 "-OSType", $OSType,
                 "-MemorySize", $MemorySize,
                 "-CPUs", $CPUs,
-                "-NetworkType", $NetworkType,
+                "-NetworkType", $subnet.Type,
+                "-AdapterName", $subnet.AdapterName,
+                "-SubnetNetwork", $subnet.Network,
                 "-Applications", $Applications
             )
             & pwsh -File $windowsMainScriptPath @arguments
