@@ -1,5 +1,3 @@
-#VM's krijgen standaard een NAT adapter als eerste adapter
-
 {
   "CourseName": "Virtualisatie",
   "EnvironmentVariables": {
