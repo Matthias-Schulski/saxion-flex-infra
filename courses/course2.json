@@ -1,3 +1,5 @@
+#VM's krijgen standaard een NAT adapter als eerste adapter
+
 {
   "CourseName": "Virtualisatie",
   "EnvironmentVariables": {
@@ -5,25 +7,25 @@
     "Subnets": [
       {
         "Name": "Subnet1",
-        "Network": "172.168.2.1/24",
+        "Network": "192.168.2.1/24",
         "Type": "host-only",
         "AdapterName": "vboxnet0"
       },
       {
         "Name": "Subnet2",
-        "Network": "10.1.1.1/24",
+        "Network": "192.168.3.1/24",
         "Type": "host-only",
         "AdapterName": "vboxnet1"
       },
       {
         "Name": "Subnet3",
-        "Network": "192.168.56.0/24",
+        "Network": "192.168.4.1/24",
         "Type": "host-only",
         "AdapterName": "vboxnet2"
       },
       {
         "Name": "NATNetwork",
-        "Network": "192.168.57.0/24",
+        "Network": "192.168.57.1/24",
         "Type": "natnetwork",
         "AdapterName": "natnet1"
       }
