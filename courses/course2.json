@@ -42,7 +42,7 @@
       "DistroName": "Ubuntu",
       "DistroVariant": "Server",
       "DistroVersion": "24.04",
-      "VMNetworkTypes": ["Subnet1", "NATNetwork", "Subnet3", "Subnet3" ],
+      "VMNetworkTypes": ["Subnet1", "NATNetwork", "Subnet3", "Subnet4"],
       "VMIPAddresses": ["172.168.0.10", "192.168.57.10", "192.168.57.11"],
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
