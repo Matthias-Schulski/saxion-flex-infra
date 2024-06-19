@@ -74,7 +74,7 @@ $userChoiceIndex = [int]$userChoice - 1
 if ([int]::TryParse($userChoice, [ref]$null) -and $userChoiceIndex -ge 0 -and $userChoiceIndex -lt $courses.Count) {
     # Print the chosen course URL
     $chosenCourse = $courses[$userChoiceIndex]
-    [string]$ConfigUrl = "https://github.com/Matthias-Schulski/saxion-flex-infra/blob/main/courses/$chosenCourse"
+    [string]$ConfigUrl = "https://raw.github.com/Matthias-Schulski/saxion-flex-infra/blob/main/courses/$chosenCourse"
     Write-Host "You have chosen: $ConfigUrl"
 } else {
     Write-Host "Invalid choice. Please run the script again and enter a valid number."
@@ -88,6 +88,7 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 #Code by Stefan
 # Functie om een bestand te downloaden
+pause
 function Download-File {
     param (
         [string]$url,
@@ -102,7 +103,7 @@ function Download-File {
         throw
     }
 }
-
+pause
 # Functie om het OS-type te bepalen
 function Get-OSType {
     param (
@@ -150,19 +151,19 @@ if (-not (Test-Path $restartFlagFile)) {
     # Verwijder het flag-bestand
     Remove-Item $restartFlagFile
 }
-
+pause
 # Installeer Dependencies
 [string]$GeneralScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/InstallDependencies.ps1"
 $generalScriptPath = "$env:Public\Downloads\GeneralScript.ps1"
 Download-File -url $GeneralScriptUrl -output $generalScriptPath
 & pwsh -File $generalScriptPath
-
+pause
 # Download de JSON-bestanden
 $configLocalPath = "$env:Public\Downloads\config.json"
 $vhdLinksLocalPath = "$env:Public\Downloads\vhdlinks.json"
 Download-File -url $ConfigUrl -output $configLocalPath
 Download-File -url $VHDLinksUrl -output $vhdLinksLocalPath
-
+pause
 # Lees de JSON configuratie
 $config = Get-Content $configLocalPath -Raw | ConvertFrom-Json
 $vhdLinks = Get-Content $vhdLinksLocalPath -Raw | ConvertFrom-Json
