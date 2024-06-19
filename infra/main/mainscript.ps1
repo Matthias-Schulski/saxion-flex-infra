@@ -65,8 +65,8 @@ $userChoiceIndex = [int]$userChoice - 1
 if ([int]::TryParse($userChoice, [ref]$null) -and $userChoiceIndex -ge 0 -and $userChoiceIndex -lt $courses.Count) {
     # Print the chosen course URL
     $chosenCourse = $courses[$userChoiceIndex]
-    $chosenUrl = "https://github.com/Matthias-Schulski/saxion-flex-infra/blob/main/courses/$chosenCourse"
-    Write-Host "You have chosen: $chosenUrl"
+    [string]$ConfigUrl = "https://github.com/Matthias-Schulski/saxion-flex-infra/blob/main/courses/$chosenCourse"
+    Write-Host "You have chosen: $ConfigUrl"
 } else {
     Write-Host "Invalid choice. Please run the script again and enter a valid number."
 }
@@ -75,7 +75,6 @@ if ([int]::TryParse($userChoice, [ref]$null) -and $userChoiceIndex -ge 0 -and $u
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 # Variabele voor config script
-[string]$ConfigUrl = $chosenUrl
 [string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
 
 #Code by Stefan
