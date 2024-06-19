@@ -1,23 +1,83 @@
-# Variabele voor config script
-[string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course2.json"
-[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
+#Code by Matthias
 
-# Tijdelijk wijzig de Execution Policy
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+# Introductory text
+Write-Host "Welcome to the SAX-FLEX-INFRA script!"
+Write-Host "This script will help you setup Virtual Machines"
+Write-Host "The script will also configure some propertys of the VM's"
+Write-Host "For the configuration we need your name and studentnr"
+Write-Host "This script is a project from students: Stefan, Luca, Simone, Ahmed and Matthias"
 
-# Pad naar het bestand dat het studentnummer opslaat
+# Prompt for student name
+$studentName = (Read-Host "Please enter your name").Trim()
+
+# Path to the file that stores the student number
 $studentNumberFilePath = "$env:Public\student_number.txt"
 
-# Controleer of het studentnummer al is opgeslagen
+# Check if the student number is already stored
 if (Test-Path $studentNumberFilePath) {
     $studentNumber = (Get-Content $studentNumberFilePath -Raw).Trim()
     Write-Output "Using stored student number: $studentNumber"
 } else {
-    # Vraag het studentennummer op
+    # Ask for the student number
     $studentNumber = (Read-Host "Please enter your student number").Trim()
-    # Sla het studentnummer op
+    # Save the student number
     Set-Content -Path $studentNumberFilePath -Value $studentNumber
 }
+
+# Create an ArrayList
+$courses = New-Object System.Collections.ArrayList
+
+# Define the GitHub API URL for the directory
+$url = "https://api.github.com/repos/Matthias-Schulski/saxion-flex-infra/contents/courses"
+
+# Use Invoke-WebRequest to call the GitHub API
+$response = Invoke-WebRequest -Uri $url -Headers @{ "User-Agent" = "Mozilla/5.0" }
+
+# Parse the JSON response
+$content = $response.Content | ConvertFrom-Json
+
+# Extract course names from the JSON response
+foreach ($item in $content) {
+    if ($item.type -eq "file") {
+        $courses.Add($item.name) | Out-Null
+    }
+}
+
+# Check if any courses were found
+if ($courses.Count -eq 0) {
+    Write-Host "No courses found. Please check the URL or the GitHub repository structure."
+    exit
+}
+
+# Display the menu to the user
+Write-Host "Please choose a course by entering the corresponding number:"
+for ($i = 0; $i -lt $courses.Count; $i++) {
+    Write-Host "$($i + 1). $($courses[$i])"
+}
+
+# Get the user choice
+$userChoice = Read-Host "Enter the number corresponding to your choice"
+
+# Convert user choice to zero-based index
+$userChoiceIndex = [int]$userChoice - 1
+
+# Validate user input
+if ([int]::TryParse($userChoice, [ref]$null) -and $userChoiceIndex -ge 0 -and $userChoiceIndex -lt $courses.Count) {
+    # Print the chosen course URL
+    $chosenCourse = $courses[$userChoiceIndex]
+    $chosenUrl = "https://github.com/Matthias-Schulski/saxion-flex-infra/blob/main/courses/$chosenCourse"
+    Write-Host "You have chosen: $chosenUrl"
+} else {
+    Write-Host "Invalid choice. Please run the script again and enter a valid number."
+}
+
+# Temporary Execution Policy
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+
+# Variabele voor config script
+[string]$ConfigUrl = $chosenUrl
+[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
+
 
 # Functie om een bestand te downloaden
 function Download-File {
