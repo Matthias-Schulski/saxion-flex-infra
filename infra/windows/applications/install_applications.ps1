@@ -1,3 +1,5 @@
+#Code by Simone
+
 #parameter van de applicaties
 param (
     [string]$JsonFilePath = "C:/Windows/Setup/Applications/VMApplications.json"
