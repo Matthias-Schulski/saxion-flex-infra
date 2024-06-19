@@ -78,7 +78,7 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 [string]$ConfigUrl = $chosenUrl
 [string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
 
-
+#Code by Stefan
 # Functie om een bestand te downloaden
 function Download-File {
     param (
