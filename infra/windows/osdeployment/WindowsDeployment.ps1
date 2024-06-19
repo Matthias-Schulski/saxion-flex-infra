@@ -1,21 +1,39 @@
-#This script asks for user input
-#The user input is used to change property's of the Windows VHD file
-#The computername, username and a few settings in Windows are changed with this scipt
+param (
+    [string]$CourseName
+)
 
-#!!!This script requires a specific file structure with predownloaded files. 
+# Check if CourseName is provided
+if (-not $CourseName) {
+    Write-Host "Error: CourseName is required."
+    exit
+}
+
+# Read student name and number from files
+$studentNamePath = "C:\Users\Public\student_name.txt"
+$studentNumberPath = "C:\Users\Public\student_number.txt"
+
+if (-not (Test-Path -Path $studentNamePath)) {
+    Write-Host "Error: $studentNamePath does not exist."
+    exit
+}
+if (-not (Test-Path -Path $studentNumberPath)) {
+    Write-Host "Error: $studentNumberPath does not exist."
+    exit
+}
+
+$studentName = Get-Content -Path $studentNamePath -Raw
+$studentNumber = Get-Content -Path $studentNumberPath -Raw
 
 # Ask for input
-$courseName = Read-Host -Prompt 'Enter the course name'
-$studentName = Read-Host -Prompt 'Enter the student name'
-$studentNumber = Read-Host -Prompt 'Enter the student number'
 $cpu = Read-Host -Prompt 'Enter the number of CPUs'
 $ram = Read-Host -Prompt 'Enter the amount of RAM in MB'
 
 # Define paths
 $baseDir = "C:\SAX-FLEX-INFRA"
-$courseDir = Join-Path -Path $baseDir -ChildPath "Courses\$courseName"
+$courseDir = Join-Path -Path $baseDir -ChildPath "Courses\$CourseName"
 $vhdPath = Join-Path -Path $baseDir -ChildPath 'BASE-FILES\Windows server 2022.vhd'
-$newVhdPath = Join-Path -Path $courseDir -ChildPath "$courseName-$studentNumber-vm1.vhd"
+$githubCourseFile = "https://github.com/Matthias-Schulski/saxion-flex-infra/blob/main/courses/$CourseName"
+$newVhdPath = Join-Path -Path $courseDir -ChildPath "$CourseName-$studentNumber-vm1.vhd"
 $unattendedPath = Join-Path -Path $baseDir -ChildPath 'BASE-FILES\unattend.xml'
 $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 
@@ -29,12 +47,12 @@ Copy-Item -Path $vhdPath -Destination $newVhdPath
 $DriveLetter = (Mount-VHD -Path $newVhdPath -PassThru | Get-Disk | Get-Partition | Get-Volume).DriveLetter
 
 # Create Panther directory
-New-Item -ItemType Directory -Force -Path "$($driveLetter):\Windows\Panther"
+New-Item -ItemType Directory -Force -Path "$($DriveLetter):\Windows\Panther"
 
 # Copy and edit Autounattend.xml
 $unattendedContent = Get-Content -Path $unattendedPath -Raw
 $unattendedContent = $unattendedContent.Replace('var-username', $studentName).Replace('var-pc-name', $studentNumber)
-Set-Content -Path "$($driveLetter):\Windows\Panther\unattend.xml" -Value $unattendedContent
+Set-Content -Path "$($DriveLetter):\Windows\Panther\unattend.xml" -Value $unattendedContent
 
 # Dismount the VHD
 Dismount-DiskImage -ImagePath $newVhdPath
@@ -43,7 +61,7 @@ Dismount-DiskImage -ImagePath $newVhdPath
 & $vboxManagePath internalcommands sethduuid $newVhdPath
 
 # Create a VM
-& $vboxManagePath createvm --name "$courseName-$studentNumber-vm1" --ostype="Windows2022_64" --register #test
-& $vboxManagePath modifyvm "$courseName-$studentNumber-vm1" --cpus $cpu --memory $ram
-& $vboxManagePath storagectl "$courseName-$studentNumber-vm1" --name "SATA Controller" --add sata --controller IntelAhci #test
-& $vboxManagePath storageattach "$courseName-$studentNumber-vm1" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $newVhdPath
+& $vboxManagePath createvm --name "$CourseName-$studentNumber-vm1" --ostype="Windows2022_64" --register
+& $vboxManagePath modifyvm "$CourseName-$studentNumber-vm1" --cpus $cpu --memory $ram
+& $vboxManagePath storagectl "$CourseName-$studentNumber-vm1" --name "SATA Controller" --add sata --controller IntelAhci
+& $vboxManagePath storageattach "$CourseName-$studentNumber-vm1" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $newVhdPath
