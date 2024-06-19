@@ -1,1 +1,192 @@
-//Unattend.xml file with all setup parameters
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+	<!--https://schneegans.de/windows/unattend-generator/?LanguageMode=Unattended&UILanguage=nl-NL&UserLocale=nl-NL&KeyboardLayout=0409%3A00020409&GeoLocation=176&ProcessorArchitecture=amd64&BypassRequirementsCheck=true&ComputerNameMode=Custom&ComputerName=var-pc-name&TimeZoneMode=Explicit&TimeZone=W.+Europe+Standard+Time&PartitionMode=Interactive&WindowsEditionMode=Interactive&UserAccountMode=Unattended&AccountName0=var-username&AccountPassword0=&AccountGroup0=Administrators&AutoLogonMode=Own&PasswordExpirationMode=Unlimited&LockoutMode=Default&AllowPowerShellScripts=true&VBoxGuestAdditions=true&WifiMode=Skip&ExpressSettings=DisableAll&FirstLogonScript0=%23+Define+the+directory+containing+the+scripts%0D%0A%24scriptDirectory+%3D+%22C%3A%2FWindows%2FSetup%2FApplications%22%0D%0A%0D%0A%23+Get+all+.ps1+files+in+the+directory%0D%0A%24scripts+%3D+Get-ChildItem+-Path+%24scriptDirectory+-Filter+*.ps1%0D%0A%0D%0A%23+Function+to+run+a+script+with+elevated+privileges%0D%0Afunction+Run-ScriptAsAdmin+%7B%0D%0A++++param+%28%0D%0A++++++++%5Bstring%5D%24scriptPath%0D%0A++++%29%0D%0A%0D%0A++++%24psi+%3D+New-Object+System.Diagnostics.ProcessStartInfo%0D%0A++++%24psi.FileName+%3D+%22powershell.exe%22%0D%0A++++%24psi.Arguments+%3D+%22-File+%60%22%24scriptPath%60%22%22%0D%0A++++%24psi.Verb+%3D+%22runas%22+%23+Run+as+administrator%0D%0A++++%24psi.UseShellExecute+%3D+%24true%0D%0A%0D%0A++++%24process+%3D+%5BSystem.Diagnostics.Process%5D%3A%3AStart%28%24psi%29%0D%0A++++%24process.WaitForExit%28%29%0D%0A%7D%0D%0A%0D%0A%23+Iterate+over+each+script+and+run+it+as+administrator%0D%0Aforeach+%28%24script+in+%24scripts%29+%7B%0D%0A++++Run-ScriptAsAdmin+-scriptPath+%24script.FullName%0D%0A%7D%0D%0A%0D%0AWrite-Host+%22All+scripts+have+been+executed.%22%0D%0A&FirstLogonScriptType0=Ps1&WdacMode=Skip-->
+	<settings pass="offlineServicing"></settings>
+	<settings pass="windowsPE">
+		<component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<SetupUILanguage>
+				<UILanguage>nl-NL</UILanguage>
+			</SetupUILanguage>
+			<InputLocale>0409:00020409</InputLocale>
+			<SystemLocale>nl-NL</SystemLocale>
+			<UILanguage>nl-NL</UILanguage>
+			<UserLocale>nl-NL</UserLocale>
+		</component>
+		<component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<UserData>
+				<ProductKey>
+					<Key>00000-00000-00000-00000-00000</Key>
+				</ProductKey>
+				<AcceptEula>true</AcceptEula>
+			</UserData>
+			<RunSynchronous>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>1</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassTPMCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>2</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>3</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassStorageCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>4</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassCPUCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>5</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>6</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassDiskCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+			</RunSynchronous>
+		</component>
+	</settings>
+	<settings pass="generalize"></settings>
+	<settings pass="specialize">
+		<component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<RunSynchronous>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>1</Order>
+					<Path>net.exe accounts /maxpwage:UNLIMITED</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>2</Order>
+					<Path>powershell.exe -NoProfile -Command "Set-ExecutionPolicy -Scope 'LocalMachine' -ExecutionPolicy 'RemoteSigned' -Force;"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>3</Order>
+					<Path>powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb -ArgumentList $xml;"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>4</Order>
+					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\VBoxGuestAdditions.ps1' -Raw | Invoke-Expression;"</Path>
+				</RunSynchronousCommand>
+			</RunSynchronous>
+		</component>
+		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<ComputerName>var-pc-name</ComputerName>
+			<TimeZone>W. Europe Standard Time</TimeZone>
+		</component>
+	</settings>
+	<settings pass="auditSystem"></settings>
+	<settings pass="auditUser"></settings>
+	<settings pass="oobeSystem">
+		<component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<InputLocale>0409:00020409</InputLocale>
+			<SystemLocale>nl-NL</SystemLocale>
+			<UILanguage>nl-NL</UILanguage>
+			<UserLocale>nl-NL</UserLocale>
+		</component>
+		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<UserAccounts>
+				<LocalAccounts>
+					<LocalAccount wcm:action="add">
+						<Name>var-username</Name>
+						<Group>Administrators</Group>
+						<Password>
+							<Value></Value>
+							<PlainText>true</PlainText>
+						</Password>
+					</LocalAccount>
+				</LocalAccounts>
+			</UserAccounts>
+			<AutoLogon>
+				<Username>var-username</Username>
+				<Enabled>true</Enabled>
+				<LogonCount>1</LogonCount>
+				<Password>
+					<Value></Value>
+					<PlainText>true</PlainText>
+				</Password>
+			</AutoLogon>
+			<OOBE>
+				<ProtectYourPC>3</ProtectYourPC>
+				<HideEULAPage>true</HideEULAPage>
+				<HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+			</OOBE>
+			<FirstLogonCommands>
+				<SynchronousCommand wcm:action="add">
+					<Order>1</Order>
+					<CommandLine>reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoLogonCount /t REG_DWORD /d 0 /f</CommandLine>
+				</SynchronousCommand>
+				<SynchronousCommand wcm:action="add">
+					<Order>2</Order>
+					<CommandLine>cmd.exe /c "powershell.exe -NoProfile -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\unattend-01.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\unattend-01.log" 2&gt;&amp;1"</CommandLine>
+				</SynchronousCommand>
+			</FirstLogonCommands>
+		</component>
+	</settings>
+	<Extensions xmlns="https://schneegans.de/windows/unattend-generator/">
+		<ExtractScript>
+param(
+    [xml] $Document
+);
+
+$scriptsDir = 'C:\Windows\Setup\Scripts\';
+foreach( $file in $Document.unattend.Extensions.File ) {
+    $path = [System.Environment]::ExpandEnvironmentVariables(
+        $file.GetAttribute( 'path' )
+    );
+    if( $path.StartsWith( $scriptsDir ) ) {
+        mkdir -Path $scriptsDir -ErrorAction 'SilentlyContinue';
+    }
+    $encoding = switch( [System.IO.Path]::GetExtension( $path ) ) {
+        { $_ -in '.ps1', '.xml' } { [System.Text.Encoding]::UTF8; }
+        { $_ -in '.reg', '.vbs', '.js' } { [System.Text.UnicodeEncoding]::new( $false, $true ); }
+        default { [System.Text.Encoding]::Default; }
+    };
+    [System.IO.File]::WriteAllBytes( $path, ( $encoding.GetPreamble() + $encoding.GetBytes( $file.InnerText.Trim() ) ) );
+}
+		</ExtractScript>
+		<File path="%TEMP%\VBoxGuestAdditions.ps1">
+&amp; {
+	foreach( $letter in 'DEFGHIJKLMNOPQRSTUVWXYZ'.ToCharArray() ) {
+		$exe = "${letter}:\VBoxWindowsAdditions.exe";
+		if( Test-Path -LiteralPath $exe ) {
+			$certs = "${letter}:\cert";
+			&amp; "$certs\VBoxCertUtil.exe" add-trusted-publisher "$certs\vbox*.cer" --root "$certs\vbox*.cer";
+			Start-Process -FilePath $exe -ArgumentList "/with_wddm", "/S" -Wait;
+			return;
+		}
+	}
+	'VBoxGuestAdditions.iso is not attached to this VM.';
+} *&gt;&amp;1 &gt;&gt; "$env:TEMP\VBoxGuestAdditions.log";
+		</File>
+		<File path="C:\Windows\Setup\Scripts\unattend-01.ps1">
+# Define the directory containing the scripts
+$scriptDirectory = "C:/Windows/Setup/Applications"
+
+# Get all .ps1 files in the directory
+$scripts = Get-ChildItem -Path $scriptDirectory -Filter *.ps1
+
+# Function to run a script with elevated privileges
+function Run-ScriptAsAdmin {
+    param (
+        [string]$scriptPath
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = "powershell.exe"
+    $psi.Arguments = "-File `"$scriptPath`""
+    $psi.Verb = "runas" # Run as administrator
+    $psi.UseShellExecute = $true
+
+    $process = [System.Diagnostics.Process]::Start($psi)
+    $process.WaitForExit()
+}
+
+# Iterate over each script and run it as administrator
+foreach ($script in $scripts) {
+    Run-ScriptAsAdmin -scriptPath $script.FullName
+}
+
+Write-Host "All scripts have been executed."
+		</File>
+	</Extensions>
+</unattend>
