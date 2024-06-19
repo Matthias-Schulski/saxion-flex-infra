@@ -66,8 +66,8 @@
       "VMCpuCount": 4,
       "VMMemorySize": 4096,
       "VMApplications": [
-        "App1",
-        "App2"
+        "7zip",
+        "googlechrome"
       ],
       "Roles": [
         "Web Server"
