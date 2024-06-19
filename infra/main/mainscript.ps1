@@ -32,54 +32,6 @@ if (Test-Path $studentNumberFilePath) {
     # Save the student number
     Set-Content -Path $studentNumberFilePath -Value $studentNumber
 }
-
-# Create an ArrayList
-$courses = New-Object System.Collections.ArrayList
-
-# Define the GitHub API URL for the directory
-$url = "https://api.github.com/repos/Matthias-Schulski/saxion-flex-infra/contents/courses"
-
-# Use Invoke-WebRequest to call the GitHub API
-$response = Invoke-WebRequest -Uri $url -Headers @{ "User-Agent" = "Mozilla/5.0" }
-
-# Parse the JSON response
-$content = $response.Content | ConvertFrom-Json
-
-# Extract course names from the JSON response
-foreach ($item in $content) {
-    if ($item.type -eq "file") {
-        $courses.Add($item.name) | Out-Null
-    }
-}
-
-# Check if any courses were found
-if ($courses.Count -eq 0) {
-    Write-Host "No courses found. Please check the URL or the GitHub repository structure."
-    exit
-}
-
-# Display the menu to the user
-Write-Host "Please choose a course by entering the corresponding number:"
-for ($i = 0; $i -lt $courses.Count; $i++) {
-    Write-Host "$($i + 1). $($courses[$i])"
-}
-
-# Get the user choice
-$userChoice = Read-Host "Enter the number corresponding to your choice"
-
-# Convert user choice to zero-based index
-$userChoiceIndex = [int]$userChoice - 1
-
-# Validate user input
-if ([int]::TryParse($userChoice, [ref]$null) -and $userChoiceIndex -ge 0 -and $userChoiceIndex -lt $courses.Count) {
-    # Print the chosen course URL
-    $chosenCourse = $courses[$userChoiceIndex]
-    [string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/$chosenCourse"
-    Write-Host "You have chosen: $ConfigUrl"
-} else {
-    Write-Host "Invalid choice. Please run the script again and enter a valid number."
-}
-
 # Temporary Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
@@ -151,7 +103,55 @@ if (-not (Test-Path $restartFlagFile)) {
     # Verwijder het flag-bestand
     Remove-Item $restartFlagFile
 }
-pause
+#Matthias
+# Create an ArrayList
+$courses = New-Object System.Collections.ArrayList
+
+# Define the GitHub API URL for the directory
+$url = "https://api.github.com/repos/Matthias-Schulski/saxion-flex-infra/contents/courses"
+
+# Use Invoke-WebRequest to call the GitHub API
+$response = Invoke-WebRequest -Uri $url -Headers @{ "User-Agent" = "Mozilla/5.0" }
+
+# Parse the JSON response
+$content = $response.Content | ConvertFrom-Json
+
+# Extract course names from the JSON response
+foreach ($item in $content) {
+    if ($item.type -eq "file") {
+        $courses.Add($item.name) | Out-Null
+    }
+}
+
+# Check if any courses were found
+if ($courses.Count -eq 0) {
+    Write-Host "No courses found. Please check the URL or the GitHub repository structure."
+    exit
+}
+
+# Display the menu to the user
+Write-Host "Please choose a course by entering the corresponding number:"
+for ($i = 0; $i -lt $courses.Count; $i++) {
+    Write-Host "$($i + 1). $($courses[$i])"
+}
+
+# Get the user choice
+$userChoice = Read-Host "Enter the number corresponding to your choice"
+
+# Convert user choice to zero-based index
+$userChoiceIndex = [int]$userChoice - 1
+
+# Validate user input
+if ([int]::TryParse($userChoice, [ref]$null) -and $userChoiceIndex -ge 0 -and $userChoiceIndex -lt $courses.Count) {
+    # Print the chosen course URL
+    $chosenCourse = $courses[$userChoiceIndex]
+    [string]$ConfigUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/$chosenCourse"
+    Write-Host "You have chosen: $ConfigUrl"
+} else {
+    Write-Host "Invalid choice. Please run the script again and enter a valid number."
+}
+
+#Stefan
 # Installeer Dependencies
 [string]$GeneralScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/InstallDependencies.ps1"
 $generalScriptPath = "$env:Public\Downloads\GeneralScript.ps1"
