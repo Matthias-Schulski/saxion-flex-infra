@@ -135,7 +135,7 @@ if (-not (Test-Path $restartFlagFile)) {
     New-Item -ItemType File -Path $restartFlagFile
 
     # Herstart PowerShell met pwsh
-    Start-Process pwsh -ArgumentList "-File `"$PSCommandPath`""
+    Start-Process pwsh -ArgumentList "-NoExit", "-File `"$PSCommandPath`""
     exit
 } else {
     # Verwijder het flag-bestand
