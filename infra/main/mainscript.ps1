@@ -176,8 +176,8 @@ if ($hasLinux) {
 
 if ($hasWindows) {
     ###########################WINDOWS###########################
-    $windowsMainScriptUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/Virtualbox/WindowsMainScript.ps1"
-    $windowsMainScriptPath = "$env:Public\Downloads\WindowsMainScript.ps1"
+    $windowsMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/windows/osdeployment/WindowsDeployment.ps1"
+    $windowsMainScriptPath = "$env:Public\Downloads\WindowsDeployment.ps1"
     Download-File -url $windowsMainScriptUrl -output $windowsMainScriptPath
 
     foreach ($vm in $config.VMs) {
