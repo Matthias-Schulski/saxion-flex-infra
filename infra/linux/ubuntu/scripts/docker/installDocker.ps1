@@ -3,7 +3,7 @@
 param (
     [string]$scriptName = "dockerScript.sh",
     [string]$applicationName = "docker",
-    [string]$localScriptPath = (Join-Path -Path $env:PUBLIC -ChildPath "\VirtualBox VMs\scripts\$applicationName\$scriptName"),
+    [string]$localScriptPath = (Join-Path -Path $env:PUBLIC -ChildPath "\scripts\$applicationName\$scriptName"),
     [string]$VMName+"",                #wordt geleverd uit vorige script
     [string]$Username= "",              #wordt geleverd uit vorige script
     [string]$Password= "",              #wordt geleverd uit vorige script
