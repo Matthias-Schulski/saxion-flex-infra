@@ -4,6 +4,8 @@
 $studentNameFilePath = "$env:Public\student_name.txt"
 $studentNumberFilePath = "$env:Public\student_number.txt"
 
+$windowsMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/windows/osdeployment/WindowsDeployment.ps1"
+
 # Check if name is already stored
 if (Test-Path $studentNameFilePath) {
     $studentName = (Get-Content $studentNameFilePath -Raw).Trim()
@@ -245,42 +247,9 @@ if ($hasLinux) {
 
 if ($hasWindows) {
     ###########################WINDOWS###########################
-    $windowsMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/windows/osdeployment/WindowsDeployment.ps1"
     $windowsMainScriptPath = "$env:Public\Downloads\WindowsDeployment.ps1"
     Download-File -url $windowsMainScriptUrl -output $windowsMainScriptPath
-
-    foreach ($vm in $config.VMs) {
-        if ($vm.Platform -eq "Windows") {
-            $vmName = ("{0}_{1}_{2}" -f $courseName, $vm.VMName.Trim(), $studentNumber)
-            $osTypeKey = "{0} {1} {2} {3}" -f $vm.Platform, $vm.DistroName, $vm.DistroVariant, $vm.DistroVersion
-            $VHDUrl = $vhdUrlMap[$osTypeKey]
-            if (-not $VHDUrl) {
-                Write-Output "VHD URL not found for $osTypeKey. Skipping VM creation for $vmName."
-                continue
-            }
-            $OSType = Get-OSType -platform $vm.Platform -distroName $vm.DistroName
-            $MemorySize = $vm.VMMemorySize
-            $CPUs = $vm.VMCpuCount
-            $NetworkType = $vm.VMNetworkType
-            $Applications = $vm.VMApplications -join ','
-
-            # Haal het subnet op
-            $subnet = $config.EnvironmentVariables.Subnets | Where-Object { $_.Name -eq $NetworkType }
-
-            $arguments = @(
-                "-VMName", $vmName,
-                "-VHDUrl", $VHDUrl,
-                "-OSType", $OSType,
-                "-MemorySize", $MemorySize,
-                "-CPUs", $CPUs,
-                "-NetworkType", $subnet.Type,
-                "-AdapterName", $subnet.AdapterName,
-                "-SubnetNetwork", $subnet.Network,
-                "-Applications", $Applications
-            )
-            & pwsh -File $windowsMainScriptPath @arguments
-        }
-    }
+    & pwsh -File $windowsMainScriptPath -CourseName $chosenCourse
 }
 
 # Herstel de oorspronkelijke Execution Policy
