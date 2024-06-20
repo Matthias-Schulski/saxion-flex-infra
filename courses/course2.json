@@ -70,7 +70,7 @@
         "googlechrome"
       ],
       "Roles": [
-        "Web Server"
+        "active_directory"
       ]
     },
     {
