@@ -3,9 +3,9 @@
 param (
     [string]$scriptName = "nginxScript.sh",
     [string]$applicationName = "nginx",
-    [string]$localScriptPath = (Join-Path -Path $env:USERPROFILE -ChildPath "\VirtualBox VMs\scripts\$applicationName\$scriptName"),
-    [string]$localDefaultPath = (Join-Path -Path $env:USERPROFILE -ChildPath "\VirtualBox VMs\scripts\$applicationName\default"),
-    [string]$localIndexPath = (Join-Path -Path $env:USERPROFILE -ChildPath "\VirtualBox VMs\scripts\$applicationName\index.html"),
+    [string]$localScriptPath = (Join-Path -Path $env:PUBLIC -ChildPath "\VirtualBox VMs\scripts\$applicationName\$scriptName"),
+    [string]$localDefaultPath = (Join-Path -Path $env:PUBLIC -ChildPath "\VirtualBox VMs\scripts\$applicationName\default"),
+    [string]$localIndexPath = (Join-Path -Path $env:PUBLIC -ChildPath "\VirtualBox VMs\scripts\$applicationName\index.html"),
     [string]$VMName = "",           #wordt geleverd uit vorige script
     [string]$username = "",         #wordt geleverd uit vorige script
     [string]$password = "",         #wordt geleverd uit vorige script
