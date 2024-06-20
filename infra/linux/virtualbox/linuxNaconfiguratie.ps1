@@ -16,7 +16,6 @@ foreach ($VM in $VMName)
 {
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicaties." -ForegroundColor Yellow
-    #$vmApplicationsArray = @($VM.VMApplications)
     & ".\installApplications1.3.ps1" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -hostport $hostport
 
     #NETPLAN APPLY SCRIPT AANROEPEN
