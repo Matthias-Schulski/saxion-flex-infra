@@ -1,8 +1,5 @@
 #### SITUATIE: VMS GEMAAKT
 #### NA CONFIGURATIE MOET GEDAAN WORDEN
-#$jsonfilePath = "C:\Users\vlind\VirtualBox VMs\course3.json"            #MOET EEN TEKST BESTAND WORDEN MET ALLE GEMAAKTE VMS
-#$jsoncontent = Get-Content $jsonfilePath -Raw | ConvertFrom-Json        #---
-
 ### PARAMETERS DIE EIGENLIJK UIT VORIGE SCRIPT MOETEN KOMEN
 param (
 [STRING]$VMname = "",                   #WORDT GELEVERD
