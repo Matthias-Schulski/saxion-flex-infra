@@ -3,7 +3,7 @@
 param (
     [string]$scriptName = "minikubeScript.sh", #naam van het installscript lokaal op host
     [string]$applicationName = "minikube",      #naam van applicatie dat geïnstalleerd zal worden
-    [string]$localScriptPath = (Join-Path -Path $env:USERPROFILE -ChildPath "\VirtualBox VMs\scripts\$applicationName\$scriptName"), #locatie waar installscript staat op host
+    [string]$localScriptPath = (Join-Path -Path $env:PUBLIC -ChildPath "\VirtualBox VMs\scripts\$applicationName\$scriptName"), #locatie waar installscript staat op host
     [string]$VMName = "",           #wordt geleverd uit vorige script
     [string]$username = "",         #wordt geleverd uit vorige script
     [string]$password = "",         #wordt geleverd uit vorige script
