@@ -2,20 +2,23 @@ param (
     [string]$VMName,
     [string]$VHDUrl,
     [string]$OSType,
+    [string]$DistroName,
     [int]$MemorySize,
     [int]$CPUs,
-    [string]$NetworkType,
+    [string]$NetworkTypes,
+    [string]$Applications,
     [string]$ConfigureNetworkPath
 )
 
-# Validate input parameters
-if (-not $VMName -or -not $VHDUrl -or -not $OSType -or -not $MemorySize -or -not $CPUs -or -not $NetworkType -or -not $ConfigureNetworkPath) {
-    throw "All parameters must be provided: VMName, VHDUrl, OSType, MemorySize, CPUs, NetworkType, ConfigureNetworkPath"
-}
+# Tijdelijk wijzigen van de Execution Policy om het uitvoeren van scripts toe te staan
+$previousExecutionPolicy = Get-ExecutionPolicy
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
-##########FUNCTIONS###########
-# Set up the log file
-$logFilePath = "$env:Public\CreateVM.log"
+# Path to VBoxManage
+$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+
+# Log-bestand instellen
+$logFilePath = "$env:Public\CreateVM1.log"
 function Log-Message {
     param (
         [string]$message
@@ -26,7 +29,7 @@ function Log-Message {
     Add-Content -Path $logFilePath -Value $logMessage
 }
 
-# Function to download a file
+# Functie om een bestand te downloaden
 function Download-File {
     param (
         [string]$url,
@@ -54,6 +57,10 @@ function Extract-7z {
     }
     New-Item -ItemType Directory -Force -Path $outputFolder
 
+    $logFilePath = "$env:Public\7zExtract.log"
+    $extractCommand = "& `"$sevenZipPath`" x `"$inputFile`" -o`"$outputFolder`""
+    Log-Message "Running extract command: $extractCommand"
+    
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $sevenZipPath
     $startInfo.Arguments = "x `"$inputFile`" -o`"$outputFolder`""
@@ -63,79 +70,24 @@ function Extract-7z {
     $process = [System.Diagnostics.Process]::Start($startInfo)
     $output = $process.StandardOutput.ReadToEnd()
     $process.WaitForExit()
+    $output | Add-Content -Path $logFilePath
 
     $vmdkFile = Get-ChildItem -Path $outputFolder -Filter *.vmdk -Recurse | Select-Object -First 1
     if (-not $vmdkFile) {
-        throw "VMDK file not found after extraction."
+        throw "VMDK file not found after extraction. Check $logFilePath for details."
     }
+    Log-Message "VMDK file extracted to $($vmdkFile.FullName)"
     return $vmdkFile.FullName
 }
 
-# Remove illegal characters from the VM name
-function Remove-IllegalCharacters {
-    param (
-        [string]$name
-    )
-    $illegalChars = [System.IO.Path]::GetInvalidFileNameChars() + [System.IO.Path]::GetInvalidPathChars()
-    $sanitized = $name -replace "[$illegalChars]", ""
-    return $sanitized
-}
-
-# Function to install VirtualBox Extension Pack
-function Install-VirtualBoxExtensionPack {
-    $extensionPackUrl = "https://download.virtualbox.org/virtualbox/6.1.22/Oracle_VM_VirtualBox_Extension_Pack-6.1.22.vbox-extpack"  # Pas dit aan naar de gewenste versie
-    $extensionPackPath = "$env:TEMP\Oracle_VM_VirtualBox_Extension_Pack.vbox-extpack"
-
-    $extPackInstalled = & "$vboxManagePath" list extpacks | Select-String "Oracle VM VirtualBox Extension Pack"
-    if ($extPackInstalled) {
-        Log-Message "VirtualBox Extension Pack is already installed. Skipping installation."
-        return
-    }
-
-    Download-File -url $extensionPackUrl -output $extensionPackPath
-    & "$vboxManagePath" extpack install "$extensionPackPath" --replace --accept-license=56be48f923303c8cababb0f812b9c3c4
-    Log-Message "VirtualBox Extension Pack installed successfully."
-}
-   
-##########EXECUTION###########
-
-# Sanitize VMName
-$VMName = Remove-IllegalCharacters -name $VMName
-Log-Message "Sanitized VMName: $VMName"
-
-# Log the start of the script
-Log-Message "Script execution started. Parameters: VMName=$VMName, VHDUrl=$VHDUrl, OSType=$OSType, MemorySize=$MemorySize, CPUs=$CPUs, NetworkType=$NetworkType, ConfigureNetworkPath=$ConfigureNetworkPath"
-
-# Check if VBoxManage is available
-$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
-if (-not (Test-Path $vboxManagePath)) {
-    Log-Message "VBoxManage not found. Ensure VirtualBox is installed."
-    throw "VBoxManage not found."
-}
-
-# Check if 7-Zip is available
-$sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
-if (-not (Test-Path $sevenZipPath)) {
-    Log-Message "7-Zip not found. Ensure 7-Zip is installed."
-    throw "7-Zip not found."
-}
-
-# Install VirtualBox Extension Pack
-try {
-    Install-VirtualBoxExtensionPack
-} catch {
-    Log-Message "Failed to install VirtualBox Extension Pack: $($_.Exception.Message)"
-    throw
-}
-
-# Download and extract the VHD
+# Ensure the downloads directory exists
 $downloadsPath = "$env:Public\Downloads"
 $tempExtractedPath = "$downloadsPath\$VMName"
 $vhdLocalPath = "$env:Public\$VMName.7z"
 $vhdExtractedPath = "C:\Users\Public\LinuxVMs\$VMName"
+$sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
 
 try {
-    # Ensure the downloads directory exists
     if (-not (Test-Path $downloadsPath)) {
         New-Item -ItemType Directory -Force -Path $downloadsPath
     }
@@ -160,8 +112,9 @@ try {
     Log-Message "VMDK file path: $vmdkFilePath"
 
     # Ensure $vmdkFilePath is a string and correct
-    $vmdkFileName = [System.IO.Path]::GetFileName($vmdkFilePath)
-    $vmdkFilePath = Join-Path -Path $tempExtractedPath -ChildPath $vmdkFileName
+    $vmdkFilePath = $vmdkFilePath -join ""
+    $vmdkFilePath = $vmdkFilePath.Trim()
+    $vmdkFilePath = $vmdkFilePath -replace ".*(C:\\Users\\Public\\Downloads\\.*?\\.*?\.vmdk).*", '$1'
     Log-Message "Validated VMDK file path: $vmdkFilePath"
 
     # Rename the extracted VMDK file to VMName.vmdk
@@ -183,7 +136,7 @@ try {
     # Clone the VMDK file to the target directory
     $clonedVMDKPath = "$vhdExtractedPath\$VMName.vmdk"
     Log-Message "Cloning VMDK to $clonedVMDKPath..."
-    & "$vboxManagePath" clonemedium disk "$renamedVMDKPath" "$clonedVMDKPath"
+    & "$vboxManagePath" clonevdi "$renamedVMDKPath" "$clonedVMDKPath"
     Log-Message "VMDK cloned successfully to $clonedVMDKPath"
 
     # Create the VM
@@ -193,8 +146,16 @@ try {
 
     # Modify VM settings
     Log-Message "Modifying VM settings..."
-    & "$vboxManagePath" modifyvm $VMName --memory $MemorySize --cpus $CPUs --vram 16 --graphicscontroller vmsvga
-    Log-Message "VM settings modified successfully."
+    & "$vboxManagePath" modifyvm $VMName --memory $MemorySize --cpus $CPUs --nic1 nat --vram 16 --graphicscontroller vmsvga
+
+    # Assign a unique SSH port for this VM
+    $sshPortBase = 2222
+    $existingVMs = & "$vboxManagePath" list vms
+    $sshPortOffset = ($existingVMs.Count + 1) * 10  # Ensure we get a unique port offset
+    $sshPort = $sshPortBase + $sshPortOffset
+
+    & "$vboxManagePath" modifyvm $VMName --natpf1 "SSH,tcp,,$sshPort,,22"
+    Log-Message "VM settings modified successfully with SSH port $sshPort."
 
     # Add storage controller with 1 port
     Log-Message "Adding storage controller..."
@@ -206,32 +167,69 @@ try {
     & "$vboxManagePath" storageattach $VMName --storagectl "SATA_Controller" --port 0 --device 0 --type hdd --medium "$clonedVMDKPath"
     Log-Message "Cloned VMDK attached successfully."
 
-    # Configure network
-    Log-Message "Configuring network for VM..."
-    $networkArguments = @(
-        "-VMName", $VMName,
-        "-NetworkType", $NetworkType
-    )
-    & pwsh -File $ConfigureNetworkPath @networkArguments
-    Log-Message "Network configuration completed successfully."
+    # Controleer of het netwerkconfiguratiescript bestaat en lees de inhoud
+    if (-not (Test-Path $ConfigureNetworkPath)) {
+        throw "Network configuration script not found at $ConfigureNetworkPath"
+    }
+    $configureNetworkScriptContent = Get-Content -Path $ConfigureNetworkPath -Raw
 
-    # Enable guest control
-    Log-Message "Enabling guest control for VM..."
-    & "$vboxManagePath" modifyvm $VMName --vrde on
-    Log-Message "Guest control enabled for VM."
+    # Lees de netwerktypes
+    Log-Message "NetworkTypes parameter: $NetworkTypes"
 
-    # Start the VM
+    # Probeer de JSON te parseren
+    try {
+        $networkTypesArray = $NetworkTypes | ConvertFrom-Json
+        Log-Message "Parsed NetworkTypes: $($networkTypesArray | ConvertTo-Json -Compress)"
+    } catch {
+        Log-Message "Failed to parse NetworkTypes JSON: $_"
+        throw "Failed to parse NetworkTypes JSON."
+    }
+
+    # Controleer of het parsed JSON een array van objecten is
+    if ($null -eq $networkTypesArray -or $networkTypesArray.Count -eq 0) {
+        throw "Parsed NetworkTypes is null or empty."
+    }
+
+    # Configureer de netwerken
+    $nicIndex = 2  # Start from 2 because NIC1 is already configured as NAT
+    foreach ($networkType in $networkTypesArray) {
+        Log-Message "Configuring network: Type=$($networkType.Type), AdapterName=$($networkType.AdapterName), Network=$($networkType.Network)"
+        if ($networkType.Type -eq "bridged") {
+            $argsString = "-VMName $VMName -NetworkType $($networkType.Type) -AdapterName $($networkType.AdapterName) -NicIndex $nicIndex"
+        } else {
+            $argsString = "-VMName $VMName -NetworkType $($networkType.Type) -AdapterName $($networkType.AdapterName) -SubnetNetwork $($networkType.Network) -NicIndex $nicIndex"
+        }
+        
+        Log-Message "Running network configuration with args: $argsString"
+        Invoke-Expression "$ConfigureNetworkPath $argsString"
+        $nicIndex++
+    }
+
     Log-Message "Starting VM..."
     & "$vboxManagePath" startvm $VMName --type headless
     Log-Message "VM started successfully."
 
-    # Add VM name to the list of created VMs
-    $createdVMsPath = "$env:Public\created_vms.txt"
-    Add-Content -Path $createdVMsPath -Value $VMName
-    Log-Message "VM name $VMName added to $createdVMsPath."
+    # Download and execute the post-configuration script
+    $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxNaconfiguratie.ps1"
+    $postConfigScriptPath = "$downloadsPath\linuxNaconfiguratie.ps1"
+    Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
+
+    # Execute the post-configuration script with the provided parameters
+    $postConfigArgs = "-vmname $VMName -distroname $DistroName -applications $Applications -sshport $sshPort"
+    Log-Message "Running post-configuration script with args: $postConfigArgs"
+    try {
+        & "$postConfigScriptPath" $postConfigArgs
+        Log-Message "Post-configuration script executed successfully."
+    } catch {
+        Log-Message "Failed to execute post-configuration script: $($_.Exception.Message)"
+        throw
+    }
 }
 catch {
     Log-Message "An error occurred: $($_.Exception.Message)"
     throw
 }
 Log-Message "Script execution completed successfully."
+
+# Herstel de oorspronkelijke Execution Policy
+Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
