@@ -194,7 +194,7 @@ foreach ($vm in $config.VMs) {
 
 if ($hasLinux) {
     ############################LINUX############################
-    $linuxMainScriptUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/test6/linuxmain.ps1"
+    $linuxMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxmain.ps1"
     $linuxMainScriptPath = "$env:Public\Downloads\LinuxMainScript.ps1"
     Download-File -url $linuxMainScriptUrl -output $linuxMainScriptPath
 
