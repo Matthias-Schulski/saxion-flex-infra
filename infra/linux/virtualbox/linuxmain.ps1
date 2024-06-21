@@ -14,10 +14,6 @@ param (
 $previousExecutionPolicy = Get-ExecutionPolicy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
-# Tijdelijk wijzigen van de Execution Policy om het uitvoeren van scripts toe te staan
-$previousExecutionPolicy = Get-ExecutionPolicy
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-
 [string]$ConfigureNetworkUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/test6/configurenetwork1.ps1"
 [string]$CreateVM1Url = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/test6/createvm.ps1"
 [string]$ModifyVMSettingsUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/Virtualbox/ModifyVMSettings.ps1"
@@ -28,17 +24,13 @@ function Download-File {
         [string]$url,
         [string]$output
     )
-    if (-not (Test-Path $output)) {
-        try {
-            $client = New-Object System.Net.WebClient
-            $client.DownloadFile($url, $output)
-            Write-Output "Downloaded file from $url to $output"
-        } catch {
-            Write-Output "Failed to download file from $url to $output"
-            throw
-        }
-    } else {
-        Write-Output "File already exists: $output. Skipping download."
+    try {
+        $client = New-Object System.Net.WebClient
+        $client.DownloadFile($url, $output)
+        Write-Output "Downloaded file from $url to $output"
+    } catch {
+        Write-Output "Failed to download file from $url to $output"
+        throw
     }
 }
 
@@ -72,9 +64,7 @@ Download-File -url $ConfigureNetworkUrl -output $configureNetworkPath
 Download-File -url $CreateVM1Url -output $createVM1LocalPath
 Download-File -url $ModifyVMSettingsUrl -output $modifyVMSettingsLocalPath
 
-
 # Controleer of het bestand met aangemaakte VM's bestaat
-$createdVMsPath = "$env:Public\created_vms.txt"
 if (-not (Test-Path $createdVMsPath)) {
     New-Item -ItemType File -Force -Path $createdVMsPath
 }
