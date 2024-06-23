@@ -11,6 +11,6 @@
     "DistroName": "Debian",
     "DistroVariant": "Server",
     "DistroVersion": "12",
-    "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:dlhz157/VMware/D/12/Debian_12.0.0_VMM.7z"
+    "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:dlhz157/VirtualBox/D/12/Debian_12.0.0_VBM.7z"
   }
 ]
