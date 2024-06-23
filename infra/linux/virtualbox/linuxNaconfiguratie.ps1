@@ -47,10 +47,12 @@ download-File -url $postConfigScriptUrl -output $localNetplanPath
 
 $username = "ubuntu" #DEFAULT USER
 $password = "ubuntu" #DEFAULT WACHTWOORD
-$hostname = "ubuntu" #DEFAULT DIRECTORY                 
+$hostname = "ubuntu" #DEFAULT DIRECTORY      
 
-foreach ($VM in $VMName)
-{
+write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $applications`nsshPort: $sshPort"
+
+#foreach ($VM in $VMName)
+#{
     #NETPLAN APPLY SCRIPT AANROEPEN
     write-host "$vmname netplan configureren." -ForegroundColor Yellow
     & "$netplanApplyPath" -username $username -password $password -hostname $hostname -vmname $vmname
@@ -58,4 +60,4 @@ foreach ($VM in $VMName)
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
     & "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort
-}
+#}
