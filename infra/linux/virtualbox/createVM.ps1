@@ -216,16 +216,16 @@ $postConfigScriptPath = "$downloadsPath\linuxNaconfiguratie.ps1"
 Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
 
 # Maak een array met de parameters voor het post-configuratie script
-$postConfigArgs = @(
-    "-vmname", $VMName,
-    "-distroname", $DistroName,
-    "-applications", $Applications,
-    "-sshport", $sshPort
-)
+#$postConfigArgs = @(
+#    "-vmname", $VMName,
+#    "-distroname", $DistroName,
+#    "-applications", $Applications,
+#    "-sshport", $sshPort
+#)
 
 Log-Message "Running post-configuration script with args: $($postConfigArgs -join ' ')"
 try {
-    & "$postConfigScriptPath" @postConfigArgs
+   & "$postConfigScriptPath" -vmname $vmname -distroname $distroname -applications $applications -sshport $sshport
     Log-Message "Post-configuration script executed successfully."
 } catch {
     Log-Message "Failed to execute post-configuration script: $($_.Exception.Message)"
