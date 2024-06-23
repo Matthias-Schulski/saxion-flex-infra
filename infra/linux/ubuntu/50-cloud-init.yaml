@@ -8,3 +8,5 @@ network:
   ethernets:
     enp0s3:
       dhcp4: true
+#    enp0s8:        #IN TE VULLEN DOOR STUDENT               
+#      dhcp4: false #IN TE VULLEN DOOR STUDENT
