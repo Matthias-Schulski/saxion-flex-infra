@@ -2,10 +2,10 @@
 #### NA CONFIGURATIE MOET GEDAAN WORDEN
 ### PARAMETERS DIE EIGENLIJK UIT VORIGE SCRIPT MOETEN KOMEN
 param (
-[STRING]$VMname = "",                   #WORDT GELEVERD
-[STRING]$distroname = "",               #WORDT GELEVERD
-[STRING]$applications="",               #WORDT GELEVERD
-[STRING]$sshPort=""                    #WORDT GELEVERD
+[STRING]$vmname,                   #WORDT GELEVERD
+[STRING]$distroname,               #WORDT GELEVERD
+[STRING]$applications,               #WORDT GELEVERD
+[STRING]$sshport                    #WORDT GELEVERD
 )
 
 function Download-File {
