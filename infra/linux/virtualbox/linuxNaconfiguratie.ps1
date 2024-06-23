@@ -26,7 +26,6 @@ function Download-File {
             throw
         }
     }
-}
 $downloadsPath = "C:\Users\Public\Downloads"
 # Naconfiguratie en netwerk script downloaden 
 $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/installApplications1.3.ps1"
