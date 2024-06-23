@@ -55,7 +55,7 @@ write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $application
 #{
     #NETPLAN APPLY SCRIPT AANROEPEN
     write-host "$vmname netplan configureren." -ForegroundColor Yellow
-    & "$netplanApplyPath" -username $username -password $password -hostname $hostname -vmname $vmname
+    & "$netplanApplyPath" -username $username -password $password -hostname $hostname -vmname $vmname -sshport $sshport
     
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
