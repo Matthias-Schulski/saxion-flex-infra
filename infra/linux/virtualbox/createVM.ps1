@@ -165,6 +165,7 @@ try {
     # Attach the cloned VMDK to the VM
     Log-Message "Attaching cloned VMDK to VM..."
     & "$vboxManagePath" storageattach $VMName --storagectl "SATA_Controller" --port 0 --device 0 --type hdd --medium "$clonedVMDKPath"
+    & "$vboxManagePath" storageattach $VMName --storagectl "SATA_Controller" --port 1 --device 0 --type hdd --medium "C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"    
     Log-Message "Cloned VMDK attached successfully."
 
     # Controleer of het netwerkconfiguratiescript bestaat en lees de inhoud
