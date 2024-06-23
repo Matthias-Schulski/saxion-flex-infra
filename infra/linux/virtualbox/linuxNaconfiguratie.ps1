@@ -13,9 +13,9 @@ function Download-File {
         [string]$url,
         [string]$output
     )
-    if (Test-Path -Path $output) {
-        write-host "Het bestand is er al: $output, download wordt overgeslagen." -foregroundcolor yellow
-    } else {
+    #if (Test-Path -Path $output) {
+    #    write-host "Het bestand is er al: $output, download wordt overgeslagen." -foregroundcolor yellow
+    #} else {
         try {
             [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
             $client = New-Object System.Net.WebClient
