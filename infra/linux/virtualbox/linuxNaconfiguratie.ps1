@@ -5,7 +5,7 @@ param (
 [STRING]$VMname = "",                   #WORDT GELEVERD
 [STRING]$distroname = "",               #WORDT GELEVERD
 [STRING]$applications="",               #WORDT GELEVERD
-[STRING]$hostport=""                    #WORDT GELEVERD
+[STRING]$sshPort=""                    #WORDT GELEVERD
 )
 
 function Download-File {
@@ -30,18 +30,18 @@ function Download-File {
 $downloadsPath = "C:\Users\Public\Downloads"
 # Naconfiguratie en netwerk script downloaden 
 $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/installApplications1.3.ps1"
-$postConfigScriptPath = "$downloadsPath\installApplications1.3.ps1"
-Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
+$installApplicationsPath = "$downloadsPath\installApplications1.3.ps1"
+Download-File -url $postConfigScriptUrl -output $installApplicationsPath
 
 $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/netplanApply.ps1"
-$postConfigScriptPath = "$downloadsPath\netplanApply.ps1"
-Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
+$netplanApplyPath = "$downloadsPath\netplanApply.ps1"
+Download-File -url $postConfigScriptUrl -output $netplanApplyPath
 
 # Netplan downloaden
 
 $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/50-cloud-init.yaml"
-$postConfigScriptPath =  "$downloadsPath\50-cloud-init.yaml"
-download-File -url $postConfigScriptUrl -output $postConfigScriptPath
+$localNetplanPath =  "$downloadsPath\50-cloud-init.yaml"
+download-File -url $postConfigScriptUrl -output $localNetplanPath
 
 
 
@@ -53,10 +53,9 @@ foreach ($VM in $VMName)
 {
     #NETPLAN APPLY SCRIPT AANROEPEN
     write-host "$vmname netplan configureren." -ForegroundColor Yellow
-    & ".\netplanApply.ps1" -username $username -password $password -hostname $hostname -vmname $vmname
+    & "$netplanApplyPath" -username $username -password $password -hostname $hostname -vmname $vmname
     
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
-    & ".\installApplications1.3.ps1" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -hostport $hostport
+    & "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort
 }
-
