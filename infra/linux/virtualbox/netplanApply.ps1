@@ -53,5 +53,3 @@ param (
 
     Write-Host "NETPLAN OVERKOPIEREN EN UITVOEREN" -ForegroundColor DarkRed
     VBoxManage guestcontrol $vmname copyto "$localNetplanPath\50-cloud-init.yaml"  --target-directory "/home/$hostname/netplan/50-cloud-init.yaml" --username $username --password $password
-    VBoxManage guestcontrol $vmname execute --image "/bin/bash" --username $username --password $password --wait-exit --wait-stdout --verbose -- /bin/bash -c "sudo mv '/home/$hostname/netplan/50-cloud-init.yaml' '/etc/netplan/50-cloud-init.yaml"
-    VBoxManage guestcontrol $vmname execute --image "/bin/bash" --username $username --password $password --wait-exit --wait-stdout --verbose -- /bin/bash -c "sudo netplan apply"
