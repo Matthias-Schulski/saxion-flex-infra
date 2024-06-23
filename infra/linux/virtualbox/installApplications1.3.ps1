@@ -1,16 +1,18 @@
 ### PARAMETERS
 param (
-[STRING]$username    = "",          #DEFAULT USER
-[STRING]$password    = "",          #DEFAULT WACHTWOORD
-[STRING]$hostname    = "",          #VORIGE SCRIPT
-[STRING]$vmname      = "",          #VORIGE SCRIPT 
-[STRING]$applications = "",       #VORIGE SCRIPT 
-[STRING]$hostport= ""               #VORIGE SCRIPT
+[STRING]$username,          #DEFAULT USER
+[STRING]$password,          #DEFAULT WACHTWOORD
+[STRING]$hostname,          #VORIGE SCRIPT
+[STRING]$vmname,          #VORIGE SCRIPT 
+[STRING]$applications,             #VORIGE SCRIPT 
+[STRING]$hostport                 #VORIGE SCRIPT
 )
 
     $counter     = 0
     $scriptsPath = (Join-Path -Path $PSScriptRoot -ChildPath "SCRIPTS")
     $applCounter = 0
+
+    write-host "installApplications1.3.ps1"
 
     #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
     write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
