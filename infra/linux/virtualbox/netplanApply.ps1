@@ -1,10 +1,10 @@
 ### PARAMETERS
 param (
-[STRING]$username = "",         #DEFAULT USER
-[STRING]$password = "",         #DEFAULT WACHTWOORD
-[STRING]$hostname = "",
-[STRING]$vmname   = "",
-[STRING]$sshPort = ""
+[STRING]$username,         
+[STRING]$password,         
+[STRING]$hostname,
+[STRING]$vmname,
+[STRING]$sshPort
 )
     $downloadsPath = "C:\Users\Public\Downloads"
     $localNetplanPath = "$downloadsPath\50-cloud-init.yaml"
@@ -18,7 +18,7 @@ param (
         while (-not $SSHAvailable) {
             Start-Sleep -Seconds 10
             try {            
-                $testSSH = New-SSHSession -ComputerName "127.0.0.1" -Port $hostport -Credential $credential
+                $testSSH = New-SSHSession -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential
             if ($testSSH.SessionId -ne $null) {
                 $SSHAvailable = $true
                 Remove-SSHSession -SessionId $testSSH.SessionId
@@ -31,7 +31,7 @@ param (
 
     Write-Host "SSH is beschikbaar." -ForegroundColor green
     
-    $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $hostport -Credential $credential
+    $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $sshport -Credential $credential
 
     if ($SSHSession -ne $null) {
     Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
