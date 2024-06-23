@@ -211,20 +211,26 @@ try {
     Log-Message "VM started successfully."
 
     # Download and execute the post-configuration script
-    $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxNaconfiguratie.ps1"
-    $postConfigScriptPath = "$downloadsPath\linuxNaconfiguratie.ps1"
-    Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
+$postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxNaconfiguratie.ps1"
+$postConfigScriptPath = "$downloadsPath\linuxNaconfiguratie.ps1"
+Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
 
-    # Execute the post-configuration script with the provided parameters
-    $postConfigArgs = "-vmname $VMName -distroname $DistroName -applications $Applications -sshport $sshPort"
-    Log-Message "Running post-configuration script with args: $postConfigArgs"
-    try {
-        & "$postConfigScriptPath" $postConfigArgs
-        Log-Message "Post-configuration script executed successfully."
-    } catch {
-        Log-Message "Failed to execute post-configuration script: $($_.Exception.Message)"
-        throw
-    }
+# Maak een array met de parameters voor het post-configuratie script
+$postConfigArgs = @(
+    "-vmname", $VMName,
+    "-distroname", $DistroName,
+    "-applications", $Applications,
+    "-sshport", $sshPort
+)
+
+Log-Message "Running post-configuration script with args: $($postConfigArgs -join ' ')"
+try {
+    & "$postConfigScriptPath" @postConfigArgs
+    Log-Message "Post-configuration script executed successfully."
+} catch {
+    Log-Message "Failed to execute post-configuration script: $($_.Exception.Message)"
+    throw
+}
 }
 catch {
     Log-Message "An error occurred: $($_.Exception.Message)"
