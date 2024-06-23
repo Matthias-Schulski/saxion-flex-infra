@@ -216,7 +216,11 @@ try {
     Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
 
     # Execute the post-configuration script with the provided parameters
-    $postConfigArgs = "-vmname $VMName -distroname $DistroName -applications $Applications -sshport $sshPort"
+    $postConfigArgs = @( 
+        "-VMName", $vmName,
+        "-distroname", $DistroName,
+        "-applications", $Applications,
+        "-sshPort", $sshPort
     Log-Message "Running post-configuration script with args: $postConfigArgs"
     try {
         & "$postConfigScriptPath" $postConfigArgs
