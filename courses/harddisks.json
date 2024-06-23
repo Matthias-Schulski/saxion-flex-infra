@@ -4,7 +4,7 @@
     "DistroName": "Ubuntu",
     "DistroVariant": "Server",
     "DistroVersion": "24.04",
-    "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:vmware/U/24.04/UbuntuServer_24.04_VM.7z"
+    "VHDUrl": "https://dlconusc1.linuxvmimages.com/046389e06777452db2ccf9a32efa3760:virtualbox/U/24.04/UbuntuServer_24.04_VB.7z"
   },
   {
     "Platform": "Linux",
