@@ -11,25 +11,6 @@ param (
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
     
-    #CHECK OF VM IS OPGESTART
-    $VMStarted = $false
-        while (-not $VMStarted) {
-            Start-Sleep -Seconds 5
-            $VMInfo = & "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" showvminfo $VMName --machinereadable
-            # Controleer de status van de VM
-            foreach ($line in $VMInfo) {
-                if ($line -match 'VMState="running"') {
-                    $VMStarted = $true
-                    break
-                    }
-            }
-            if (-not $VMStarted) {
-                Write-Host "Wachten tot de VM is opgestart..."
-        }
-    }
-
-    Write-Host "VM is opgestart en draait."
-
     #CHECK OF SSH MOGELIJK IS
     $SSHAvailable = $false
     $sshCounter = 0
