@@ -34,18 +34,34 @@ param (
     $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $sshport -Credential $credential
 
     if ($SSHSession -ne $null) {
-    Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
+        Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
     
-    # Voer een commando uit
-    $CommandResult = invoke-sshcommand -sessionid $sshsession.sessionid -command "sudo apt install -y bzip2 tar; sudo mount /dev/cdrom /mnt; cd /mnt; sudo sh ./VBoxLinuxAdditions.run"    
-    # Output de resultaten van het commando
-    Write-Host "Command executed. Result: $($CommandResult.Output)"
+        # Voer de commando's een voor een uit
+        $commands = @(
+            "sudo apt update",
+            "sudo apt install -y bzip2 tar",
+            "sudo mount /dev/cdrom /mnt",
+            "cd /mnt; sudo sh ./VBoxLinuxAdditions.run"
+        )
     
-    # Sluit de SSH sessie
-    Remove-SSHSession -SessionId $SSHSession.SessionId
+        foreach ($command in $commands) {
+            Write-Host "Executing: $command" -ForegroundColor cyan
+            $CommandResult = Invoke-SSHCommand -SessionId $SSHSession.SessionId -Command $command -TimeOut 600
+        
+            if ($CommandResult.ExitStatus -ne 0) {
+                Write-Host "Error executing: $command" -ForegroundColor red
+                Write-Host "Error details: $($CommandResult.Error)" -ForegroundColor red
+                break
+            } else {
+                Write-Host "Command executed successfully: $command" -ForegroundColor green
+                Write-Host "Result: $($CommandResult.Output)"
+            }
+        }
+    
+        # Sluit de SSH-sessie
+        Remove-SSHSession -SessionId $SSHSession.SessionId
     } else {
-        Write-Host "Fout bij het aanmaken van de SSH sessie." -ForegroundColor DarkRed
-        break
+        Write-Host "Kon geen SSH-sessie aanmaken" -ForegroundColor red
     }
 
     write-host "NU WORDT HET NETPLAN OVERGEKOPIEERD EN TOEGEPAST OP $vmname" -ForegroundColor DarkRed
