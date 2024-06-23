@@ -3,7 +3,8 @@ param (
 [STRING]$username = "",         #DEFAULT USER
 [STRING]$password = "",         #DEFAULT WACHTWOORD
 [STRING]$hostname = "",
-[STRING]$vmname   = ""
+[STRING]$vmname   = "",
+[STRING]$sshPort = ""
 )
     $downloadsPath = "C:\Users\Public\Downloads"
     $localNetplanPath = "$downloadsPath\50-cloud-init.yaml"
