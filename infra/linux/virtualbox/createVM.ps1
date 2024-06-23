@@ -221,6 +221,7 @@ try {
         "-distroname", $DistroName,
         "-applications", $Applications,
         "-sshPort", $sshPort
+        )
     Log-Message "Running post-configuration script with args: $postConfigArgs"
     try {
         & "$postConfigScriptPath" $postConfigArgs
