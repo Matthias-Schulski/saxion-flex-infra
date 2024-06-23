@@ -8,11 +8,16 @@ param (
 [STRING]$hostport                 #VORIGE SCRIPT
 )
 
+    write-host "installApplications1.3.ps1" -foregroundcolor cyan
     $counter     = 0
     $scriptsPath = (Join-Path -Path $PSScriptRoot -ChildPath "SCRIPTS")
     $applCounter = 0
 
-    write-host "installApplications1.3.ps1"
+    #APPLICATIES IN ARRAY ZETTEN
+    $appsArray = $applications -split ", "
+    for ($i = 0; $i -lt $appsArray.Length; $i++) {
+        $appsArray[$i] = $appsArray[$i].Trim()
+    }
 
     #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
     write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
@@ -22,13 +27,13 @@ param (
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
     write-host "De volgende applicaties zullen geïnstalleerd worden op deze virtuele machine:" -ForegroundColor Yellow
     Write-Host "VM Name: $vmname" -ForegroundColor Cyan
-    foreach ($app in $applications) {
+    foreach ($app in $appsArray) {
         $applCounter++
         Write-Host "$applCounter - $app" -ForegroundColor Green
     }
 
     ###### SCRIPTS AANROEPEN WANNEER PAD BESTAAT ########
-    foreach ($app in $applications) {
+    foreach ($app in $appsArray) {
         $appFolderPath = Join-Path -Path $scriptsPath -ChildPath $app
     
         if (Test-Path $appFolderPath -PathType Container) {
