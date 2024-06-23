@@ -165,7 +165,7 @@ try {
     # Attach the cloned VDI to the VM
     Log-Message "Attaching cloned VDI to VM..."
     & "$vboxManagePath" storageattach $VMName --storagectl "SATA_Controller" --port 0 --device 0 --type hdd --medium "$clonedVDIPath"
-    & "$vboxManagePath" storageattach $VMName --storagectl "SATA_Controller" --port 1 --device 0 --type hdd --medium "C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"    
+    & "$vboxManagePath" storageattach $VMName --storagectl "SATA_Controller" --port 1 --device 0 --type dvddrive --medium "C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"    
     Log-Message "Cloned VDI attached successfully."
 
     # Controleer of het netwerkconfiguratiescript bestaat en lees de inhoud
