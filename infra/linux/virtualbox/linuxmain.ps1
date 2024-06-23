@@ -15,7 +15,7 @@ $previousExecutionPolicy = Get-ExecutionPolicy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 [string]$ConfigureNetworkUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/test6/configurenetwork1.ps1"
-[string]$CreateVM1Url = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/test6/createvm.ps1"
+[string]$CreateVM1Url = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/createVM.ps1"
 [string]$ModifyVMSettingsUrl = "https://raw.githubusercontent.com/Stefanfrijns/HBOICT/main/Virtualbox/ModifyVMSettings.ps1"
 
 # Functie om een bestand te downloaden
