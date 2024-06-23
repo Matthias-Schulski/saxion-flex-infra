@@ -1,4 +1,4 @@
-﻿### PARAMETERS
+### PARAMETERS
 param (
 [STRING]$username    = "",          #DEFAULT USER
 [STRING]$password    = "",          #DEFAULT WACHTWOORD
@@ -11,68 +11,6 @@ param (
     $counter     = 0
     $scriptsPath = (Join-Path -Path $PSScriptRoot -ChildPath "SCRIPTS")
     $applCounter = 0
-
-    #POSH-SSH CONFIGUREREN
-    $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
-    $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
-    
-    
-    vboxmanage startvm $vmname
-
-    $VMStarted = $false
-        while (-not $VMStarted) {
-            Start-Sleep -Seconds 5
-            $VMInfo = & "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" showvminfo $VMName --machinereadable
-            # Controleer de status van de VM
-            foreach ($line in $VMInfo) {
-                if ($line -match 'VMState="running"') {
-                    $VMStarted = $true
-                    break
-                    }
-            }
-            if (-not $VMStarted) {
-                Write-Host "Wachten tot de VM is opgestart..."
-        }
-    }
-
-    Write-Host "VM is opgestart en draait."
-
-    # Wacht totdat SSH beschikbaar is
-    $SSHAvailable = $false
-    $sshCounter = 0
-        while (-not $SSHAvailable) {
-            Start-Sleep -Seconds 10
-            try {            
-                $testSSH = New-SSHSession -ComputerName "127.0.0.1" -Port $hostport -Credential $credential
-            if ($testSSH.SessionId -ne $null) {
-                $SSHAvailable = $true
-                Remove-SSHSession -SessionId $testSSH.SessionId
-            }
-            } catch {
-                $sshcounter++
-                Write-Host "$sshcounter - Wachten tot SSH beschikbaar is..."
-            }
-    }
-
-    Write-Host "SSH is beschikbaar." -ForegroundColor green
-    
-    $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $hostport -Credential $credential
-
-    if ($SSHSession -ne $null) {
-    Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
-    
-    # Voer een commando uit
-    $CommandResult = invoke-sshcommand -sessionid $sshsession.sessionid -command "sudo apt install -y bzip2 tar; sudo mount /dev/cdrom /mnt; cd /mnt; sudo sh ./VBoxLinuxAdditions.run"    
-    # Output de resultaten van het commando
-    Write-Host "Command executed. Result: $($CommandResult.Output)"
-    
-    # Sluit de SSH sessie
-    Remove-SSHSession -SessionId $SSHSession.SessionId
-    } else {
-        Write-Host "Fout bij het aanmaken van de SSH sessie." -ForegroundColor DarkRed
-        break
-    }
-
 
     #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
     write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
