@@ -55,23 +55,6 @@
         "Domain Controller",
         "DNS Server"
       ]
-    },
-    {
-      "VMName": "VM3",
-      "Platform": "Linux",
-      "DistroName": "Ubuntu",
-      "DistroVariant": "Server",
-      "DistroVersion": "24.04",
-      "VMNetworkTypes": ["Subnet1", "NATNetwork", "Subnet2"],
-      "VMIPAddresses": ["172.168.0.11", "192.168.57.11", "192.168.57.12"],
-      "VMCpuCount": 2,
-      "VMMemorySize": 2048,
-      "VMApplications": [
-        "Nginx"
-      ],
-      "Roles": [
-        "Database Server"
-      ]
     }
   ]
 }
