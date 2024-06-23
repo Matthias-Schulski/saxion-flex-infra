@@ -56,6 +56,6 @@ foreach ($VM in $VMName)
     & "$netplanApplyPath" -username $username -password $password -hostname $hostname -vmname $vmname
     
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
-    write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
-    & "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort
+    #write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
+    #& "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort
 }
