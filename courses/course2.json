@@ -59,10 +59,7 @@
     {
       "VMName": "VM2",
       "Platform": "Windows",
-      "DistroName": "Server",
-      "DistroVariant": "",
-      "DistroVersion": "2019",
-      "VMNetworkType": "nat",
+      "OSVersion": "Windows server 2019",
       "VMCpuCount": 4,
       "VMMemorySize": 4096,
       "VMApplications": [
