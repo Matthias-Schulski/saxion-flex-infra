@@ -2,6 +2,9 @@
   "CourseName": "Virtualisatie",
   "EnvironmentVariables": {
     "ActiveDirectoryDomain": "",
+    "Language": "nl-NL",
+    "KeyboardLayout": "0413:00020409",
+    "NamingScheme": "$vmName-$CourseName",
     "Subnets": [
       {
         "Name": "Subnet1",
