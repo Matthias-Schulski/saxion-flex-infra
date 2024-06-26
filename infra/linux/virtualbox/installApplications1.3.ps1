@@ -43,9 +43,9 @@ param (
     foreach ($app in $appsArray) {
         $scriptName = "$($app.ToLower()).sh"
         $scriptUrl = "$baseUrl$scriptName"
-        Write-Host $scriptUrl
-        $scriptpath = "~/$scriptName"
-        Write-Host $scriptpath
+        Write-Host $scriptUrl -ForegroundColor DarkRed
+        $scriptpath = "home/$hostname/scripts/$scriptName"
+        Write-Host $scriptpath -ForegroundColor DarkRed
     
         if (Test-Path $appFolderPath -PathType Container) {
             $scripts = Get-ChildItem -Path $appFolderPath -Filter "*.ps1" -File
