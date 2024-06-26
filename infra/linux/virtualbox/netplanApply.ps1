@@ -18,7 +18,7 @@ param (
         while (-not $SSHAvailable) {
             Start-Sleep -Seconds 10
             try {            
-                $testSSH = New-SSHSession -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential
+                $testSSH = New-SSHSession -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -AcceptKey 
             if ($testSSH.SessionId -ne $null) {
                 $SSHAvailable = $true
                 Remove-SSHSession -SessionId $testSSH.SessionId
@@ -31,7 +31,7 @@ param (
 
     Write-Host "SSH is beschikbaar." -ForegroundColor green
     
-    $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $sshport -Credential $credential
+    $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $sshport -Credential $credential  -AcceptKey 
 
     if ($SSHSession -ne $null) {
         Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
@@ -44,7 +44,8 @@ param (
             "cd /mnt; sudo sh ./VBoxLinuxAdditions.run"
         )
     
-        foreach ($command in $commands) {
+        foreach ($command in $commands) 
+        {
             Write-Host "Executing: $command" -ForegroundColor cyan
             $CommandResult = Invoke-SSHCommand -SessionId $SSHSession.SessionId -Command $command -TimeOut 600
         
