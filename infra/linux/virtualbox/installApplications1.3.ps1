@@ -5,14 +5,52 @@ param (
 [STRING]$hostname,              #VORIGE SCRIPT
 [STRING]$vmname,                #VORIGE SCRIPT 
 [STRING]$applications,          #VORIGE SCRIPT 
-[STRING]$hostport               #VORIGE SCRIPT
+[STRING]$sshPort               #VORIGE SCRIPT
 )
+    #FUNCTIE OM SSH CONNECTIE OP TE ZETTEN EN COMMANDO'S UIT TE VOEREN
+    function poshSSHcommand {
+        param (
+            [string]$ComputerName,
+            [int]$Port,
+            [PSCredential]$Credential,
+            [string[]]$Commands
+        )
+
+        #SSH SESSIE MAKEN MET POSH-SSH
+        $SSHSession = New-SSHSession -ComputerName $ComputerName -Port $Port -Credential $Credential -AcceptKey
+
+        # Check if session is successfully created
+        if ($SSHSession -ne $null) 
+        {
+            Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
+        }
+
+        # Execute each command and capture the output
+        foreach ($command in $commands) 
+        {
+            Write-Host "Executing: $command" -ForegroundColor cyan
+            $CommandResult = Invoke-SSHCommand -SessionId $SSHSession.SessionId -Command $command -TimeOut 600
+        
+            if ($CommandResult.ExitStatus -ne 0) {
+                Write-Host "Error executing: $command" -ForegroundColor red
+                Write-Host "Error details: $($CommandResult.Error)" -ForegroundColor red
+                break
+            } else {
+                Write-Host "Command executed successfully: $command" -ForegroundColor green
+                Write-Host "Result: $($CommandResult.Output)"
+            }
+        }
+
+        # Remove the SSH session
+        Remove-SSHSession -SessionId $SSHSession.SessionId
+    }
+
+    $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
+    $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
 
     write-host "installApplications1.3.ps1" -foregroundcolor cyan
     Write-Host "$applications = applicaties"
-    $baseUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/scripts/nginx/"
-    $counter     = 0
-    $scriptsPath = (Join-Path -Path $PSScriptRoot -ChildPath "SCRIPTS")
+    $baseUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/scripts/"
     $applCounter = 0
     
     #APPLICATIES IN ARRAY ZETTEN
@@ -46,22 +84,7 @@ param (
         Write-Host $scriptUrl -ForegroundColor DarkRed
         $scriptpath = "home/$hostname/scripts/$scriptName"
         Write-Host $scriptpath -ForegroundColor DarkRed
-    
-        if (Test-Path $appFolderPath -PathType Container) {
-            $scripts = Get-ChildItem -Path $appFolderPath -Filter "*.ps1" -File
-        
-            foreach ($script in $scripts) {
-                #PARAMETERS MEEGEVEN VOOR ALLE INSTALLSCRIPTS
-                $arguments = @(
-                    "-VMName", $vmname,
-                    "-Username", $Username,
-                    "-Password", $Password
-                )
-            
-                #AANROEPEN INSTALLSCRIPTS MET PARAMETERS.
-                & pwsh -File $script.FullName @arguments
-            }
-        } else {
-            Write-Host "Geen scripts gevonden voor applicatie $app" -ForegroundColor DarkRed
-        }
+
+
+        poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @("curl $scriptUrl > $scriptpath", "chmod +x $scriptpath", "cd /home/ubuntu/scripts; ls -l", "pwd")
     }
