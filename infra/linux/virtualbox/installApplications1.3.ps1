@@ -41,7 +41,11 @@ param (
 
     ###### SCRIPTS AANROEPEN WANNEER PAD BESTAAT ########
     foreach ($app in $appsArray) {
-        $appFolderPath = Join-Path -Path $scriptsPath -ChildPath $app
+        $scriptName = "$($app.ToLower()).sh"
+        $scriptUrl = "$baseUrl$scriptName"
+        Write-Host $scriptUrl
+        $scriptpath = "~/$scriptName"
+        Write-Host $scriptpath
     
         if (Test-Path $appFolderPath -PathType Container) {
             $scripts = Get-ChildItem -Path $appFolderPath -Filter "*.ps1" -File
