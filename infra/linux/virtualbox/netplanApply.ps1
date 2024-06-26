@@ -38,7 +38,7 @@ param (
     
         # Voer de commando's een voor een uit
         $commands = @(
-            "sudo apt update",
+            #"sudo apt update",
             "sudo apt install -y bzip2 tar",
             "sudo mount /dev/cdrom /mnt",
             "cd /mnt; sudo sh ./VBoxLinuxAdditions.run"
@@ -64,8 +64,7 @@ param (
         Write-Host "Kon geen SSH-sessie aanmaken" -ForegroundColor red
     }
 
-    write-host "NU WORDT HET NETPLAN OVERGEKOPIEERD EN TOEGEPAST OP $vmname" -ForegroundColor DarkRed
+    #NETPLAN OVERKOPIEREN NAAR VM ZODAT STUDENT DAAR VERDER MEE KAN.
+    write-host "NU WORDT HET NETPLAN OVERGEKOPIEERD NAAR $vmname" -ForegroundColor DarkRed
     VboxManage guestcontrol $vmname mkdir "/home/$hostname/netplan" --username $Username --password $Password
-
-    Write-Host "NETPLAN OVERKOPIEREN EN UITVOEREN" -ForegroundColor DarkRed
     VBoxManage guestcontrol $vmname copyto "$localNetplanPath"  --target-directory "/home/$hostname/netplan/50-cloud-init.yaml" --username $username --password $password
