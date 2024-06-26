@@ -1,27 +1,34 @@
 ### PARAMETERS
 param (
-[STRING]$username,          #DEFAULT USER
-[STRING]$password,          #DEFAULT WACHTWOORD
-[STRING]$hostname,          #VORIGE SCRIPT
-[STRING]$vmname,          #VORIGE SCRIPT 
-[STRING]$applications,             #VORIGE SCRIPT 
-[STRING]$hostport                 #VORIGE SCRIPT
+[STRING]$username,              #DEFAULT USER
+[STRING]$password,              #DEFAULT WACHTWOORD
+[STRING]$hostname,              #VORIGE SCRIPT
+[STRING]$vmname,                #VORIGE SCRIPT 
+[STRING]$applications,          #VORIGE SCRIPT 
+[STRING]$hostport               #VORIGE SCRIPT
 )
 
     write-host "installApplications1.3.ps1" -foregroundcolor cyan
+    Write-Host "$applications = applicaties"
+    $baseUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/scripts/nginx/"
     $counter     = 0
     $scriptsPath = (Join-Path -Path $PSScriptRoot -ChildPath "SCRIPTS")
     $applCounter = 0
-
+    
     #APPLICATIES IN ARRAY ZETTEN
     $appsArray = $applications -split ", "
     for ($i = 0; $i -lt $appsArray.Length; $i++) {
         $appsArray[$i] = $appsArray[$i].Trim()
     }
 
+    foreach ($app in $appsArray)
+    {
+        Write-Host $app -ForegroundColor Cyan
+    }
+
     #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
     write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
-    VboxManage guestcontrol $vmname mkdir "/home/$hostname/scripts" --username ubuntu --password ubuntu
+    VboxManage guestcontrol $vmname mkdir "/home/$hostname/scripts" --username $username --password $password
     Write-Host "Directory aangemaakt" -ForegroundColor Green
 
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
