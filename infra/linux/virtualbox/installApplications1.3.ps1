@@ -74,7 +74,7 @@ param (
     Write-Host "VM Name: $vmname" -ForegroundColor Cyan
 
     ###### SCRIPTS AANROEPEN WANNEER PAD BESTAAT ########
-    foreach ($app in $applications) {
+    foreach ($app in $appsArray) {
         $applCounter++
         $scriptName = "$($app.ToLower()).sh"
         $scriptUrl = "$baseUrl$scriptName"
