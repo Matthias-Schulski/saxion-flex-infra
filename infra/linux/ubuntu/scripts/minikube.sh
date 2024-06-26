@@ -3,7 +3,6 @@
 #CURL ALS DEZE MIST
 sudo apt install -y curl
 
-mkdir ~/MK
 #INSTALLEER KUBECTL
 echo "Kubectl installeren"
 sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o kubectl
