@@ -16,7 +16,7 @@ param (
     $applCounter = 0
     
     #APPLICATIES IN ARRAY ZETTEN
-    $appsArray = $applications -split ", "
+    $appsArray = $applications -split ","
     for ($i = 0; $i -lt $appsArray.Length; $i++) {
         $appsArray[$i] = $appsArray[$i].Trim()
     }
