@@ -72,19 +72,20 @@ param (
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
     write-host "De volgende applicaties zullen geïnstalleerd worden op deze virtuele machine:" -ForegroundColor Yellow
     Write-Host "VM Name: $vmname" -ForegroundColor Cyan
-    foreach ($app in $appsArray) {
-        $applCounter++
-        Write-Host "$applCounter - $app" -ForegroundColor Green
-    }
 
     ###### SCRIPTS AANROEPEN WANNEER PAD BESTAAT ########
-    foreach ($app in $appsArray) {
+    foreach ($app in $applications) {
+        $applCounter++
         $scriptName = "$($app.ToLower()).sh"
         $scriptUrl = "$baseUrl$scriptName"
-        Write-Host $scriptUrl -ForegroundColor DarkRed
         $scriptpath = "home/$hostname/scripts/$scriptName"
+        Write-Host $applCounter "-" $app
+        Write-Host $scriptUrl -ForegroundColor DarkRed
         Write-Host $scriptpath -ForegroundColor DarkRed
-
-
-        poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @("curl $scriptUrl > $scriptpath", "chmod +x $scriptpath", "cd /home/ubuntu/scripts; ls -l", "pwd")
+        poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @(
+            "curl $scriptUrl > /home/ubuntu/scripts/$scriptName",
+            "cd /home/ubuntu/scripts; chmod +x $scriptName",
+            "ls /home/ubuntu/scripts",
+            "cd /home/ubuntu/scripts; ./$scriptname"
+        )    
     }
