@@ -28,7 +28,7 @@ function Download-File {
     }
 
     if (-not (Get-Module -ListAvailable -Name Posh-SSH)) {
-        Import-Module Posh-SSH
+        Install-Module Posh-SSH
     }
     
 $downloadsPath = "C:\Users\Public\Downloads"
