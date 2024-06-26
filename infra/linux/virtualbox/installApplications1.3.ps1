@@ -58,12 +58,7 @@ param (
     for ($i = 0; $i -lt $appsArray.Length; $i++) {
         $appsArray[$i] = $appsArray[$i].Trim()
     }
-
-    foreach ($app in $appsArray)
-    {
-        Write-Host $app -ForegroundColor Cyan
-    }
-
+    
     #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
     write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
     VboxManage guestcontrol $vmname mkdir "/home/$hostname/scripts" --username $username --password $password
