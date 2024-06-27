@@ -11,6 +11,7 @@ param (
 
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
+    $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 
     #FUNCTIE OM SSH CONNECTIE OP TE ZETTEN EN COMMANDO'S UIT TE VOEREN
     function poshSSHcommand {
@@ -63,7 +64,7 @@ param (
     
     #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
     write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
-    VboxManage guestcontrol $vmname mkdir "/home/$hostname/scripts" --username $username --password $password
+    & $vboxManagePath guestcontrol $vmname mkdir "/home/$hostname/scripts" --username $username --password $password
     Write-Host "Directory aangemaakt" -ForegroundColor Green
 
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
@@ -85,6 +86,6 @@ param (
             "curl $scriptUrl > /home/$hostname/scripts/$scriptName",
             "chmod +x $scriptpath",
             "ls $basepath",
-            #"$scriptpath"
+            "$scriptpath"
         )    
     }
