@@ -68,8 +68,7 @@ param (
 
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
     write-host "De volgende applicaties zullen geïnstalleerd worden op deze virtuele machine:" -ForegroundColor Yellow
-    Write-Host "VM Name: $vmname" -ForegroundColor Cyan
-    Write-Host "$appsArray" -ForegroundColor DarkCyan
+    Write-Host "$appsArray" -ForegroundColor Yellow
 
     ###### SCRIPTS DOWNLOADEN NAAR VM WANNEER DEZE OP GITHUB STAAT ########
     foreach ($app in $appsArray) {
