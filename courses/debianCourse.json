@@ -1,0 +1,58 @@
+{
+  "CourseName": "testCourse",
+  "EnvironmentVariables": {
+    "ActiveDirectoryDomain": "",
+    "Subnets": [
+      {
+        "Name": "Subnet1",
+        "Network": "192.168.2.1/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet0"
+      },
+      {
+        "Name": "Subnet2",
+        "Network": "192.168.3.1/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet1"
+      },
+      {
+        "Name": "Subnet3",
+        "Network": "192.168.4.1/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet2"
+      },
+      {
+        "Name": "Subnet4",
+        "Network": "",
+        "Type": "bridged",
+        "AdapterName": "bridged"
+      },
+      {
+        "Name": "NATNetwork",
+        "Network": "192.168.57.1/24",
+        "Type": "natnetwork",
+        "AdapterName": "natnet1"
+      }
+    ]
+  },
+  "VMs": [
+    {
+      "VMName": "VM1",
+      "Platform": "Linux",
+      "DistroName": "Debian",
+      "DistroVariant": "Server",
+      "DistroVersion": "12",
+      "VMNetworkTypes": ["Subnet1"],
+      "VMIPAddresses": ["172.168.0.10", "192.168.57.10", "192.168.57.11"],
+      "VMCpuCount": 2,
+      "VMMemorySize": 2048,
+      "VMApplications": [
+        "docker"
+      ],
+      "Roles": [
+        "Domain Controller",
+        "DNS Server"
+      ]
+    }
+  ]
+}
