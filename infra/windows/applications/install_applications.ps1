@@ -1,5 +1,9 @@
 #Code by Simone
 
+#Dit script installeerd de applicaties op de Virtuele machines. 
+#Welke applicaties worden geïnsatlleerd is afhankelijk van de course die wordt gekozen. 
+#Via de JSON bestanden in de github map saxion-flex-infra/courses worden de chocolatey pakketnaam opgehaald. 
+
 #parameter van de applicaties
 param (
     [string]$JsonFilePath = "C:/Windows/Setup/Applications/VMApplications.json"
