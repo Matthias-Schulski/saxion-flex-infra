@@ -18,7 +18,7 @@ param (
         while (-not $SSHAvailable) {
             Start-Sleep -Seconds 10
             try {            
-                $testSSH = New-SSHSession -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -AcceptKey 
+                $testSSH = New-SSHSession -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -AcceptKey -Force
             if ($testSSH.SessionId -ne $null) {
                 $SSHAvailable = $true
                 Remove-SSHSession -SessionId $testSSH.SessionId
