@@ -50,9 +50,9 @@
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
       "VMApplications": [
-        "App1",
-        "App2",
-        "App3"
+        "Nginx",
+        "Docker",
+        "Minikube"
       ],
       "Roles": [
         "Domain Controller",
