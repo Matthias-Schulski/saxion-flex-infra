@@ -7,7 +7,6 @@ param (
 [STRING]$sshPort
 )
     $downloadsPath = "C:\Users\Public\Downloads"
-    $localNetplanPath = "$downloadsPath\50-cloud-init.yaml"
     $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
     #POSH-SSH CONFIGUREREN
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
@@ -42,9 +41,10 @@ param (
             "sudo apt update && sudo apt upgrade",
             "sudo apt install -y bzip2 tar",
             "sudo mount /dev/cdrom /mnt",
-            "cd /mnt; sudo sh ./VBoxLinuxAdditions.run"
+            #"cd /mnt; sudo sh ./VBoxLinuxAdditions.run"
+            "mkdir /home/$hostname/netplan",
+            "curl https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/50-cloud-init.yaml > /home/$hostname/netplan/50-cloud-init.yaml"            
         )
-    
         foreach ($command in $commands) 
         {
             Write-Host "Executing: $command" -ForegroundColor cyan
@@ -65,8 +65,3 @@ param (
     } else {
         Write-Host "Kon geen SSH-sessie aanmaken" -ForegroundColor red
     }
-
-    #NETPLAN OVERKOPIEREN NAAR VM ZODAT STUDENT DAAR VERDER MEE KAN.
-    write-host "NU WORDT HET NETPLAN OVERGEKOPIEERD NAAR $vmname" -ForegroundColor DarkRed
-    & $vboxManagePath guestcontrol $vmname mkdir "/home/$hostname/netplan" --username $Username --password $Password
-    & $vboxManagePath guestcontrol $vmname copyto "$localNetplanPath"  --target-directory "/home/$hostname/netplan/50-cloud-init.yaml" --username $username --password $password
