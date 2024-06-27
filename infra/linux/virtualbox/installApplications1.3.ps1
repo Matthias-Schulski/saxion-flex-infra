@@ -79,7 +79,6 @@ param (
     Write-Host $scriptname
     Write-Host "Script Path: $scriptpath" -ForegroundColor DarkRed
     poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @(
-        "mkdir $basePath",
         "curl $scriptUrl > $basePath$scriptName",
         "chmod +x $scriptpath",
         "ls $basepath",
