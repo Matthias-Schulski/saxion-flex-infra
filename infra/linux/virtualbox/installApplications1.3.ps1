@@ -62,30 +62,26 @@ param (
         $appsArray[$i] = $appsArray[$i].Trim()
     }
     
-    #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
-    write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
-    & $vboxManagePath guestcontrol $vmname mkdir "/home/$hostname/scripts" --username $username --password $password
-    Write-Host "Directory aangemaakt" -ForegroundColor Green
-
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
     write-host "De volgende applicaties zullen geïnstalleerd worden op deze virtuele machine:" -ForegroundColor Yellow
     Write-Host "$appsArray" -ForegroundColor Yellow
 
     ###### SCRIPTS DOWNLOADEN NAAR VM WANNEER DEZE OP GITHUB STAAT ########
     foreach ($app in $appsArray) {
-        $applCounter++
-        $scriptName = "$($app.ToLower()).sh"
-        $scriptUrl = "$baseUrl$scriptName"
-        $basePath = "/home/$hostname/scripts/"
-        $scriptpath = "$basePath$scriptName"
-        Write-Host $applCounter "-" $app
-        Write-Host "Script URL: $scriptUrl" -ForegroundColor DarkRed
-        Write-Host $scriptname
-        Write-Host "Script Path: $scriptpath" -ForegroundColor DarkRed
-        poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @(
-            "curl $scriptUrl > /home/$hostname/scripts/$scriptName",
-            "chmod +x $scriptpath",
-            "ls $basepath",
-            "$scriptpath"
-        )    
-    }
+    $applCounter++
+    $scriptName = "$($app.ToLower()).sh"
+    $scriptUrl = "$baseUrl$scriptName"
+    $basePath = "/home/$hostname/scripts/"
+    $scriptpath = "$basePath$scriptName"
+    Write-Host $applCounter "-" $app
+    Write-Host "Script URL: $scriptUrl" -ForegroundColor DarkRed
+    Write-Host $scriptname
+    Write-Host "Script Path: $scriptpath" -ForegroundColor DarkRed
+    poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @(
+        "mkdir $basePath",
+        "curl $scriptUrl > $basePath$scriptName",
+        "chmod +x $scriptpath",
+        "ls $basepath",
+        "cd $basePath; $scriptpath"
+    )
+}
