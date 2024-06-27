@@ -13,9 +13,6 @@ function Download-File {
         [string]$url,
         [string]$output
     )
-    #if (Test-Path -Path $output) {
-    #    write-host "Het bestand is er al: $output, download wordt overgeslagen." -foregroundcolor yellow
-    #} else {
         try {
             [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
             $client = New-Object System.Net.WebClient
@@ -40,13 +37,6 @@ Download-File -url $postConfigScriptUrl -output $installApplicationsPath
 $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/netplanApply.ps1"
 $netplanApplyPath = "$downloadsPath\netplanApply.ps1"
 Download-File -url $postConfigScriptUrl -output $netplanApplyPath
-
-# Netplan downloaden
-
-$postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/50-cloud-init.yaml"
-$localNetplanPath =  "$downloadsPath\50-cloud-init.yaml"
-download-File -url $postConfigScriptUrl -output $localNetplanPath
-
 
 if ($distroname -eq "ubuntu")
 {
