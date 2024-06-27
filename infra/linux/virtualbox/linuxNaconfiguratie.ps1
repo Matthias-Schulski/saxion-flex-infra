@@ -73,5 +73,5 @@ write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $application
     
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
-    & "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort
+    & "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort -distroname $distroname.ToLower()
 #}
