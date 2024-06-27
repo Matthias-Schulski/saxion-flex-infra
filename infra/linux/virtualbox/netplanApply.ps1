@@ -51,7 +51,7 @@ param (
         )
 
         #SSH SESSIE MAKEN MET POSH-SSH
-        $SSHSession = New-SSHSession -ComputerName $ComputerName -Port $Port -Credential $Credential -AcceptKey
+        $SSHSession = New-SSHSession -ComputerName $ComputerName -Port $Port -Credential $Credential -AcceptKey -Force
 
         #CHECKEN OF SSHSESSIE CORRECT IS AANGEMAAKT
         if ($SSHSession -ne $null) 
