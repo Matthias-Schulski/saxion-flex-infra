@@ -1,11 +1,9 @@
-#### SITUATIE: VMS GEMAAKT
-#### NA CONFIGURATIE MOET GEDAAN WORDEN
-### PARAMETERS DIE EIGENLIJK UIT VORIGE SCRIPT MOETEN KOMEN
+### PARAMETERS
 param (
-[STRING]$vmname,                   #WORDT GELEVERD
-[STRING]$distroname,               #WORDT GELEVERD
-[STRING]$applications,               #WORDT GELEVERD
-[STRING]$sshport                    #WORDT GELEVERD
+[STRING]$vmname,                   
+[STRING]$distroname,               
+[STRING]$applications,             
+[STRING]$sshport                   
 )
 
 function Download-File {
@@ -76,12 +74,12 @@ function Download-File {
     $netplanApplyPath = "$downloadsPath\netplanApply.ps1"
     Download-File -url $postConfigScriptUrl -output $netplanApplyPath
     
-    write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $applications`nsshPort: $sshPort`nUsername: $($VMcredentials.username)`nPassword: $($VMcredentials.password)`nHostname: $($VMcredentials.hostname)"
+    write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $applications`nsshPort: $sshPort`nUsername: $($VMcredentials.username)`nPassword: $($VMcredentials.password)`nHostname: $($VMcredentials.hostname)" -ForegroundColor Yellow
 
     #NETPLAN APPLY SCRIPT AANROEPEN
     write-host "$vmname netplan configureren." -ForegroundColor Yellow
-    & "$netplanApplyPath" -username $username -password $password -hostname $hostname -vmname $vmname -sshport $sshport
+    & "$netplanApplyPath" -username $($VMcredentials.username) -password $($VMcredentials.password) -hostname $($VMcredentials.hostname) -vmname $vmname -sshport $sshport
     
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
-    & "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort -distroname $distroname.ToLower()
+    & "$installApplicationsPath" -username $($VMcredentials.username) -password $($VMcredentials.password) -hostname $($VMcredentials.hostname) -vmname $VMName -applications $applications -sshPort $sshPort -distroname $distroname.ToLower()
