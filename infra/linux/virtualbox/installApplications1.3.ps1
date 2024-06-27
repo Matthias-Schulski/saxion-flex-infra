@@ -62,9 +62,9 @@ param (
     }
     
     #DIRECTORY AANMAKEN VOOR SCRIPTS IN VM
-    write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
-    VboxManage guestcontrol $vmname mkdir "/home/$hostname/scripts" --username $username --password $password
-    Write-Host "Directory aangemaakt" -ForegroundColor Green
+    #write-host "Directory aanmaken in VM (scripts)" -ForegroundColor Yellow
+    #VboxManage guestcontrol $vmname mkdir "/home/$hostname/scripts" --username $username --password $password
+    #Write-Host "Directory aangemaakt" -ForegroundColor Green
 
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
     write-host "De volgende applicaties zullen geïnstalleerd worden op deze virtuele machine:" -ForegroundColor Yellow
