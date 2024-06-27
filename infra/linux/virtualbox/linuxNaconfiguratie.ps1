@@ -28,35 +28,56 @@ function Download-File {
         Install-Module Posh-SSH
     }
     
-$downloadsPath = "C:\Users\Public\Downloads"
-# Naconfiguratie en netwerk script downloaden 
-$postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/installApplications1.3.ps1"
-$installApplicationsPath = "$downloadsPath\installApplications1.3.ps1"
-Download-File -url $postConfigScriptUrl -output $installApplicationsPath
+    function Set-VMCredentials {
+        param(
+            [string] $distroname
+        )
+    
+        switch ($distroname) {
+            "ubuntu" {
+                $username = "ubuntu"
+                $password = "ubuntu"
+                $hostname = "ubuntu"
+            }
+            "debian" {
+                $username = "debian"
+                $password = "debian"
+                $hostname = "debian"
+            }
+            #"alpine" {
+            #    $username = "alpine"
+            #    $password = "alpine"
+            #    $hostname = "alpine"
+            #}
+            default {
+                Write-Warning "Geen standaard credentials gevonden voor distributienaam: $distroname"
+                $username = $null
+                $password = $null
+                $hostname = $null
+            }
+        }
+    
+        return @{
+            Username = $username
+            Password = $password
+            Hostname = $hostname
+        }
+    }
 
-$postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/netplanApply.ps1"
-$netplanApplyPath = "$downloadsPath\netplanApply.ps1"
-Download-File -url $postConfigScriptUrl -output $netplanApplyPath
+    $VMcredentials = Set-VMCredentials -distroname $distroname
+    
+    $downloadsPath = "C:\Users\Public\Downloads"
+    # Naconfiguratie en netwerk script downloaden 
+    $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/installApplications1.3.ps1"
+    $installApplicationsPath = "$downloadsPath\installApplications1.3.ps1"
+    Download-File -url $postConfigScriptUrl -output $installApplicationsPath
+    
+    $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/netplanApply.ps1"
+    $netplanApplyPath = "$downloadsPath\netplanApply.ps1"
+    Download-File -url $postConfigScriptUrl -output $netplanApplyPath
+    
+    write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $applications`nsshPort: $sshPort`nUsername: $($VMcredentials.username)`nPassword: $($VMcredentials.password)`nHostname: $($VMcredentials.hostname)"
 
-if ($distroname -eq "ubuntu")
-{
-    $username = "ubuntu" #DEFAULT USER VOOR UBUNTU
-    $password = "ubuntu" #DEFAULT WACHTWOORD VOOR UBUNTU
-    $hostname = "ubuntu" #DEFAULT DIRECTORY VOOR UBUNTU  
-} elseif ($distroname -eq "debian") {
-    $username = "debian" #DEFAULT USER VOOR DEBIAN
-    $password = "debian" #DEFAULT WACHTWOORD VOOR DEBIAN
-    $hostname = "debian" #DEFAULT DIRECTORY VOOR DEBIAN
-} #elseif ($distroname -eq "Alpine"){
-    #$username = "alpine" #DEFAULT USER VOOR ALPINE
-    #$password = "alpine" #DEFAULT WACHTWOORD VOOR ALPINE
-    #$hostname = "alpine" #DEFAULT DIRECTORY VOOR ALPINE
-#}
-
-write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $applications`nsshPort: $sshPort`nUsername: $username`nPassword: $password`nHostname: $hostname"
-
-#foreach ($VM in $VMName)
-#{
     #NETPLAN APPLY SCRIPT AANROEPEN
     write-host "$vmname netplan configureren." -ForegroundColor Yellow
     & "$netplanApplyPath" -username $username -password $password -hostname $hostname -vmname $vmname -sshport $sshport
@@ -64,4 +85,3 @@ write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $application
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
     & "$installApplicationsPath" -username $username -password $password -hostname $hostname -vmname $VMName -applications $applications -sshPort $sshPort -distroname $distroname.ToLower()
-#}
