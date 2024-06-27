@@ -1,3 +1,4 @@
+# Parameters
 param (
     [string]$VMName,
     [string]$VHDUrl,
@@ -5,20 +6,24 @@ param (
     [string]$DistroName,
     [int]$MemorySize,
     [int]$CPUs,
-    [string]$NetworkTypes,
+    [string]$NetworkTypes,  # JSON-string
     [string]$Applications,
     [string]$ConfigureNetworkPath
 )
 
-# Tijdelijk wijzigen van de Execution Policy om het uitvoeren van scripts toe te staan
+# Variabelen
 $previousExecutionPolicy = Get-ExecutionPolicy
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-
-# Path to VBoxManage
 $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
-
-# Log-bestand instellen
 $logFilePath = "$env:Public\CreateVM1.log"
+$downloadsPath = "$env:Public\Downloads"
+$tempExtractedPath = "$downloadsPath\$VMName"
+$vhdLocalPath = "$env:Public\$VMName.7z"
+$vhdExtractedPath = "C:\Users\Public\LinuxVMs\$VMName"
+$sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
+$postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxNaconfiguratie.ps1"
+$postConfigScriptPath = "$downloadsPath\linuxNaconfiguratie.ps1"
+
+# Functie: Log-Message
 function Log-Message {
     param (
         [string]$message
@@ -29,7 +34,7 @@ function Log-Message {
     Add-Content -Path $logFilePath -Value $logMessage
 }
 
-# Functie om een bestand te downloaden
+# Functie: Download-File
 function Download-File {
     param (
         [string]$url,
@@ -45,7 +50,7 @@ function Download-File {
     }
 }
 
-# Function to extract .7z file
+# Functie: Extract-7z
 function Extract-7z {
     param (
         [string]$sevenZipPath,
@@ -80,12 +85,8 @@ function Extract-7z {
     return $vdiFile.FullName
 }
 
-# Ensure the downloads directory exists
-$downloadsPath = "$env:Public\Downloads"
-$tempExtractedPath = "$downloadsPath\$VMName"
-$vhdLocalPath = "$env:Public\$VMName.7z"
-$vhdExtractedPath = "C:\Users\Public\LinuxVMs\$VMName"
-$sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
+# Tijdelijk wijzigen van de Execution Policy om het uitvoeren van scripts toe te staan
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 try {
     if (-not (Test-Path $downloadsPath)) {
@@ -211,33 +212,21 @@ try {
     Log-Message "VM started successfully."
 
     # Download and execute the post-configuration script
-$postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxNaconfiguratie.ps1"
-$postConfigScriptPath = "$downloadsPath\linuxNaconfiguratie.ps1"
-Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
+    Download-File -url $postConfigScriptUrl -output $postConfigScriptPath
 
-# Maak een array met de parameters voor het post-configuratie script
-#$postConfigArgs = @(
-#    "-vmname", $VMName,
-#    "-distroname", $DistroName,
-#    "-applications", $Applications,
-#    "-sshport", $sshPort
-#)
-
-Log-Message "Running post-configuration script with args: $($postConfigArgs -join ' ')"
-try {
-   & "$postConfigScriptPath" -vmname $vmname -distroname $distroname -applications $applications -sshport $sshport
-    Log-Message "Post-configuration script executed successfully."
+    Log-Message "Running post-configuration script with args: $($postConfigArgs -join ' ')"
+    try {
+        & "$postConfigScriptPath" -vmname $VMName -distroname $DistroName -applications $Applications -sshport $sshPort
+        Log-Message "Post-configuration script executed successfully."
+    } catch {
+        Log-Message "Failed to execute post-configuration script: $($_.Exception.Message)"
+        throw
+    }
 } catch {
-    Log-Message "Failed to execute post-configuration script: $($_.Exception.Message)"
-    throw
-}
-}
-catch {
     Log-Message "An error occurred: $($_.Exception.Message)"
     throw
+} finally {
+    # Herstel de oorspronkelijke Execution Policy
+    Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
+    Log-Message "Script execution completed successfully."
 }
-Log-Message "Script execution completed successfully."
-
-# Herstel de oorspronkelijke Execution Policy
-Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
-echo test
