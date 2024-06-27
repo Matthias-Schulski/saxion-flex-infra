@@ -1,12 +1,17 @@
-### PARAMETERS
+### PARAMETERS UIT VORIG SCRIPT
 param (
-[STRING]$username,              #DEFAULT USER
-[STRING]$password,              #DEFAULT WACHTWOORD
-[STRING]$hostname,              #VORIGE SCRIPT
-[STRING]$vmname,                #VORIGE SCRIPT 
-[STRING]$applications,          #VORIGE SCRIPT 
-[STRING]$sshPort               #VORIGE SCRIPT
+[STRING]$username,
+[STRING]$password,
+[STRING]$hostname,
+[STRING]$vmname,
+[STRING]$applications,
+[STRING]$sshPort,
+[STRING]$distroname
 )
+
+    $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
+    $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
+
     #FUNCTIE OM SSH CONNECTIE OP TE ZETTEN EN COMMANDO'S UIT TE VOEREN
     function poshSSHcommand {
         param (
@@ -45,9 +50,6 @@ param (
         Remove-SSHSession -SessionId $SSHSession.SessionId
     }
 
-    $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
-    $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
-
     write-host "installApplications1.3.ps1" -foregroundcolor Magenta
     $baseUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/$distroname/scripts/"
     $applCounter = 0
@@ -76,8 +78,8 @@ param (
         $scriptUrl = "$baseUrl$scriptName"
         $scriptpath = "home/$hostname/scripts/$scriptName"
         Write-Host $applCounter "-" $app
-        Write-Host $scriptUrl -ForegroundColor DarkRed
-        Write-Host $scriptpath -ForegroundColor DarkRed
+        Write-Host "Script URL: $scriptUrl" -ForegroundColor DarkRed
+        Write-Host "Script Path: $scriptpath" -ForegroundColor DarkRed
         poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @(
             "curl $scriptUrl > /home/$hostname/scripts/$scriptName",
             "cd /home/$hostname/scripts; chmod +x $scriptName",
