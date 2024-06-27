@@ -17,11 +17,6 @@ sudo install -o root -g root -m 0755 ~/scripts/minikube-linux-amd64 /usr/local/b
 sudo chmod +x /usr/local/bin/minikube   # Zorg ervoor dat minikube uitvoerbaar is
 minikube version
 
-
-#MINIKUBE STARTEN
-echo "Minikube starten"
-sudo minikube start --driver=docker
-
 #STATUS MINIKUBE CONTROLEREN
 echo "Minikube status checken"
 sudo minikube status
