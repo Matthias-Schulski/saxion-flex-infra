@@ -31,7 +31,7 @@ param (
 
     Write-Host "SSH is beschikbaar." -ForegroundColor green
     
-    $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $sshport -Credential $credential  -AcceptKey 
+    $SSHSession = New-SSHSession -ComputerName "127.0.0.1" -Port $sshport -Credential $credential  -AcceptKey -Force
 
     if ($SSHSession -ne $null) {
         Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
