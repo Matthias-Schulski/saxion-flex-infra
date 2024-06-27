@@ -78,7 +78,7 @@ function Download-File {
 
     #NETPLAN APPLY SCRIPT AANROEPEN
     write-host "$vmname netplan configureren." -ForegroundColor Yellow
-    & "$netplanApplyPath" -username $($VMcredentials.username) -password $($VMcredentials.password) -hostname $($VMcredentials.hostname) -vmname $vmname -sshport $sshport
+    & "$netplanApplyPath" -username $($VMcredentials.username) -password $($VMcredentials.password) -hostname $($VMcredentials.hostname) -vmname $vmname -sshport $sshport -distroname $distroname.ToLower()
     
     #INSTALLAPPLICATIONS SCRIPT AANROEPEN
     write-host "$vmname krijgt nu guestadditions en applicatie." -ForegroundColor Yellow
