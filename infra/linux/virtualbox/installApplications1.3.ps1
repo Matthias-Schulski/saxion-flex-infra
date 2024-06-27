@@ -85,6 +85,6 @@ param (
             "curl $scriptUrl > /home/$hostname/scripts/$scriptName",
             "chmod +x $scriptpath",
             "ls $basepath",
-            "$scriptpath"
+            #"$scriptpath"
         )    
     }
