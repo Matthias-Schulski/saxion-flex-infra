@@ -8,6 +8,7 @@ param (
 )
     $downloadsPath = "C:\Users\Public\Downloads"
     $localNetplanPath = "$downloadsPath\50-cloud-init.yaml"
+    $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
     #POSH-SSH CONFIGUREREN
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
@@ -67,5 +68,5 @@ param (
 
     #NETPLAN OVERKOPIEREN NAAR VM ZODAT STUDENT DAAR VERDER MEE KAN.
     write-host "NU WORDT HET NETPLAN OVERGEKOPIEERD NAAR $vmname" -ForegroundColor DarkRed
-    VboxManage guestcontrol $vmname mkdir "/home/$hostname/netplan" --username $Username --password $Password
-    VBoxManage guestcontrol $vmname copyto "$localNetplanPath"  --target-directory "/home/$hostname/netplan/50-cloud-init.yaml" --username $username --password $password
+    & $vboxManagePath guestcontrol $vmname mkdir "/home/$hostname/netplan" --username $Username --password $Password
+    & $vboxManagePath guestcontrol $vmname copyto "$localNetplanPath"  --target-directory "/home/$hostname/netplan/50-cloud-init.yaml" --username $username --password $password
