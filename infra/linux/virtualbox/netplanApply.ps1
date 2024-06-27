@@ -87,6 +87,7 @@ param (
         "sudo apt update",
         #"sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y",
         "sudo apt install -y bzip2 tar",
+        "sudo apt install -y curl",
         "sudo mount /dev/cdrom /mnt",
         "mkdir /home/$hostname/netplan",
         "mkdir /home/$hostname/scripts",
