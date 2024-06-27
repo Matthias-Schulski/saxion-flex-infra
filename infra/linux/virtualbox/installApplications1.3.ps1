@@ -48,10 +48,10 @@ param (
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
 
-    write-host "installApplications1.3.ps1" -foregroundcolor cyan
-    Write-Host "$applications = applicaties"
-    $baseUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/scripts/"
+    write-host "installApplications1.3.ps1" -foregroundcolor Magenta
+    $baseUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/$distroname/scripts/"
     $applCounter = 0
+    write-host "$baseurl" -foregroundcolor Magenta
     
     #APPLICATIES IN ARRAY ZETTEN
     $appsArray = $applications -split ","
@@ -67,8 +67,9 @@ param (
     #TE INSTALLEREN SCRIPTS LATEN ZIEN
     write-host "De volgende applicaties zullen geïnstalleerd worden op deze virtuele machine:" -ForegroundColor Yellow
     Write-Host "VM Name: $vmname" -ForegroundColor Cyan
+    Write-Host "$appsArray" -ForegroundColor DarkCyan
 
-    ###### SCRIPTS AANROEPEN WANNEER PAD BESTAAT ########
+    ###### SCRIPTS DOWNLOADEN NAAR VM WANNEER DEZE OP GITHUB STAAT ########
     foreach ($app in $appsArray) {
         $applCounter++
         $scriptName = "$($app.ToLower()).sh"
@@ -78,9 +79,9 @@ param (
         Write-Host $scriptUrl -ForegroundColor DarkRed
         Write-Host $scriptpath -ForegroundColor DarkRed
         poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @(
-            "curl $scriptUrl > /home/ubuntu/scripts/$scriptName",
-            "cd /home/ubuntu/scripts; chmod +x $scriptName",
-            "ls /home/ubuntu/scripts",
-            "cd /home/ubuntu/scripts; ./$scriptname"
+            "curl $scriptUrl > /home/$hostname/scripts/$scriptName",
+            "cd /home/$hostname/scripts; chmod +x $scriptName",
+            "ls /home/$hostname/scripts",
+            "cd /home/$hostname/scripts; ./$scriptname"
         )    
     }
