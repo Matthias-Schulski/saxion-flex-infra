@@ -1,18 +1,16 @@
-#!/usr/bin/bash 
-#VAN GET.DOCKER.COM GEHAALD
-#DOCKER INSTALLER VOOR OP VM
-# 1. download the script
+#!/bin/bash
+#VAN GET.DOCKER.COM
+# Download het Docker installatiescript van get.docker.com
+sudo curl -fsSL https://get.docker.com -o get-docker.sh
 
-sudo curl -fsSL https://get.docker.com -o install-docker.sh
+# Voer het Docker installatiescript uit
+sudo sh get-docker.sh
 
-# 2. verify the script's content
+# Start de Docker service
+sudo systemctl start docker
 
-#sudo cat install-docker.sh
+# Optioneel: stel Docker in om automatisch te starten bij het opstarten van het systeem
+sudo systemctl enable docker
 
-# 3. run the script with --dry-run to verify the steps it executes
-
-#sudo sh install-docker.sh --dry-run
-
-# 4. run the script either as root, or using sudo to perform the installation.
-
-sudo sh install-docker.sh
+# Toon de geïnstalleerde Docker versie
+docker --version
