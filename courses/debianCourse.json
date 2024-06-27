@@ -37,7 +37,7 @@
   },
   "VMs": [
     {
-      "VMName": "VM1",
+      "VMName": "VM2",
       "Platform": "Linux",
       "DistroName": "Debian",
       "DistroVariant": "Server",
