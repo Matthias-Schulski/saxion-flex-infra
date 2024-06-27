@@ -1,3 +1,4 @@
+# Parameters
 param (
     [string]$VMName,
     [string]$VHDUrl,
@@ -10,13 +11,20 @@ param (
     [string]$ConfigureNetworkPath
 )
 
-# Tijdelijk wijzigen van de Execution Policy om het uitvoeren van scripts toe te staan
+# Variabelen
 $previousExecutionPolicy = Get-ExecutionPolicy
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+$ConfigureNetworkUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/ConfigureNetwork.ps1"
+$CreateVM1Url = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/createVM.ps1"
+$ModifyVMSettingsUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/ModifyVMSettings.ps1"
+$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+$configureNetworkPath = "$env:Public\Downloads\ConfigureNetwork.ps1"
+$createVM1LocalPath = "$env:Public\Downloads\CreateVM1.ps1"
+$modifyVMSettingsLocalPath = "$env:Public\Downloads\ModifyVMSettings.ps1"
+$createdVMsPath = "$env:Public\created_vms.txt"
+$logFilePath = "$env:Public\LinuxMainScript.log"
 
-[string]$ConfigureNetworkUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/ConfigureNetwork.ps1"
-[string]$CreateVM1Url = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/createVM.ps1"
-[string]$ModifyVMSettingsUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/ModifyVMSettings.ps1"
+# Tijdelijk wijzigen van de Execution Policy om het uitvoeren van scripts toe te staan
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 # Functie om een bestand te downloaden
 function Download-File {
@@ -35,7 +43,6 @@ function Download-File {
 }
 
 # Log functie
-$logFilePath = "$env:Public\LinuxMainScript.log"
 function Log-Message {
     param (
         [string]$message
@@ -46,18 +53,13 @@ function Log-Message {
     Add-Content -Path $logFilePath -Value $logMessage
 }
 
+# Hoofdscript
+
 # Controleer of VBoxManage beschikbaar is
-$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 if (-not (Test-Path $vboxManagePath)) {
     Log-Message "VBoxManage not found. Ensure VirtualBox is installed."
     throw "VBoxManage not found."
 }
-
-# Lokale paden voor de gedownloade bestanden
-$configureNetworkPath = "$env:Public\Downloads\ConfigureNetwork.ps1"
-$createVM1LocalPath = "$env:Public\Downloads\CreateVM1.ps1"
-$modifyVMSettingsLocalPath = "$env:Public\Downloads\ModifyVMSettings.ps1"
-$createdVMsPath = "$env:Public\created_vms.txt"
 
 # Download de JSON-bestanden en de scripts
 Download-File -url $ConfigureNetworkUrl -output $configureNetworkPath
