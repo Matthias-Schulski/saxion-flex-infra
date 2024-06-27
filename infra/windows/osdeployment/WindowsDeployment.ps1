@@ -147,7 +147,7 @@ foreach ($vm in $courseData.VMs) {
 
         $varLanguage = "$($courseData.EnvironmentVariables.Language)"
         $varKeyboard = "$($courseData.EnvironmentVariables.KeyboardLayout)"
-        $namingVariable = "$($courseData.EnvironmentVariables.NamingScheme)"
+        $namingVariable = "$vmName-$CourseName"
 
         Check-VHDFile($vm.OSVersion)
 
