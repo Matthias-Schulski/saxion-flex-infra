@@ -89,5 +89,6 @@ param (
         "sudo apt install -y bzip2 tar",
         "sudo mount /dev/cdrom /mnt",
         "mkdir /home/$hostname/netplan",
+        "mkdir /home/$hostname/scripts",
         "curl https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/50-cloud-init.yaml > /home/$hostname/netplan/50-cloud-init.yaml"            
     )
