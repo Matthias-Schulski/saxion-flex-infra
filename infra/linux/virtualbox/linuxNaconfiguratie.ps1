@@ -48,12 +48,22 @@ $localNetplanPath =  "$downloadsPath\50-cloud-init.yaml"
 download-File -url $postConfigScriptUrl -output $localNetplanPath
 
 
+if ($distroname -eq "ubuntu")
+{
+    $username = "ubuntu" #DEFAULT USER VOOR UBUNTU
+    $password = "ubuntu" #DEFAULT WACHTWOORD VOOR UBUNTU
+    $hostname = "ubuntu" #DEFAULT DIRECTORY VOOR UBUNTU  
+} elseif ($distroname -eq "debian") {
+    $username = "debian" #DEFAULT USER VOOR DEBIAN
+    $password = "debian" #DEFAULT WACHTWOORD VOOR DEBIAN
+    $hostname = "debian" #DEFAULT DIRECTORY VOOR DEBIAN
+} #elseif ($distroname -eq "Alpine"){
+    #$username = "alpine" #DEFAULT USER VOOR ALPINE
+    #$password = "alpine" #DEFAULT WACHTWOORD VOOR ALPINE
+    #$hostname = "alpine" #DEFAULT DIRECTORY VOOR ALPINE
+#}
 
-$username = "ubuntu" #DEFAULT USER
-$password = "ubuntu" #DEFAULT WACHTWOORD
-$hostname = "ubuntu" #DEFAULT DIRECTORY      
-
-write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $applications`nsshPort: $sshPort"
+write-host "VMName: $vmname`nDistroname: $distroname`nApplications: $applications`nsshPort: $sshPort`nUsername: $username`nPassword: $password`nHostname: $hostname"
 
 #foreach ($VM in $VMName)
 #{
