@@ -39,7 +39,7 @@ param (
         # Voer de commando's een voor een uit
         $commands = @(
             "sudo apt update",
-            "sudo apt upgrade -y"
+            "sudo apt upgrade -y",
             "sudo apt install -y bzip2 tar",
             "sudo mount /dev/cdrom /mnt",
             #"cd /mnt; sudo sh ./VBoxLinuxAdditions.run"
