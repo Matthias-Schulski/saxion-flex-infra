@@ -49,7 +49,7 @@ param (
         foreach ($command in $commands) 
         {
             Write-Host "Executing: $command" -ForegroundColor cyan
-            $CommandResult = Invoke-SSHCommand -SessionId $SSHSession.SessionId -Command $command -TimeOut 600
+            $CommandResult = Invoke-SSHCommand -SessionId $SSHSession.SessionId -Command $command -TimeOut 10
         
             if ($CommandResult.ExitStatus -ne 0) {
                 Write-Host "Error executing: $command" -ForegroundColor red
