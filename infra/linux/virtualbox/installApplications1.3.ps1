@@ -9,6 +9,7 @@ param (
 [STRING]$distroname
 )
 
+    #CREDENTIALS MAKEN VOOR POSHSSH
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
     $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
@@ -25,13 +26,13 @@ param (
         #SSH SESSIE MAKEN MET POSH-SSH
         $SSHSession = New-SSHSession -ComputerName $ComputerName -Port $Port -Credential $Credential -AcceptKey
 
-        # Check if session is successfully created
+        #CHECKEN OF SSHSESSIE CORRECT IS AANGEMAAKT
         if ($SSHSession -ne $null) 
         {
             Write-Host "SSH sessie succesvol aangemaakt. SessionId: $($SSHSession.SessionId)" -ForegroundColor yellow
         }
 
-        # Execute each command and capture the output
+        #IEDERE COMMANDO UITVOEREN EN OUTPUT DAARVAN TONEN
         foreach ($command in $commands) 
         {
             Write-Host "Executing: $command" -ForegroundColor cyan
@@ -47,7 +48,7 @@ param (
             }
         }
 
-        # Remove the SSH session
+        #SSH SESSIE VERWIJDEREN
         Remove-SSHSession -SessionId $SSHSession.SessionId
     }
 
