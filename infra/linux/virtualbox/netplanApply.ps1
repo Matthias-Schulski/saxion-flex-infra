@@ -4,7 +4,8 @@ param (
 [STRING]$password,         
 [STRING]$hostname,
 [STRING]$vmname,
-[STRING]$sshPort
+[STRING]$sshPort,
+[STRING]$distroname
 )
     $downloadsPath = "C:\Users\Public\Downloads"
     $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
@@ -12,6 +13,37 @@ param (
     #CREDENTIALS AANMAKEN VOOR POSH-SSH
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
+    #https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/
+
+
+    #FUNCTIE OM TE BEPALEN WELKE NETPLANCONFIGURATIE GEBRUIKT MOET WORDEN
+    function Choose-Netplan {
+        param(
+            [STRING]$distroname
+        )
+        $baseUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux"
+    
+        switch ($distroname) {
+            "ubuntu" {
+                $netplanUrl = "$baseUrl/ubuntu/50-cloud-init.yaml"
+                $netplanOutput = "/home/ubuntu/netplan/50-cloud-init.yaml"
+            }
+            "debian" {
+                $netplanUrl = "$baseUrl/debian/interfaces"
+                $netplanOutput = "/home/debian/netplan/interfaces"
+            }
+            default {
+                Write-Warning "Geen standaard credentials gevonden voor distributienaam: $distroname"
+                $netplanUrl = $null
+                $netplanoutput = $null
+            }
+        }
+    
+        return @{
+            netplanUrl = $netplanUrl
+            netplanOutput = $netplanOutput
+        }
+    }
     
     #FUNCTIE OM SSH BESCHIKBAARHEID TE CHECKEN
     function Check-SSHAvailability {
@@ -82,6 +114,8 @@ param (
     #FUNCTIE AANROEPEN OM SSH CONNECTIE TE TESTEN
     Check-SSHAvailability -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential
 
+    #NETPLAN KIEZEN
+    $netplanInformation = Choose-Netplan -distroname $distroname
     #FUNCTIE AANROEPEN OM COMMANDO'S UIT TE VOEREN
     poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -commands @(
         "sudo apt update",
@@ -91,5 +125,5 @@ param (
         "sudo mount /dev/cdrom /mnt",
         "mkdir /home/$hostname/netplan",
         "mkdir /home/$hostname/scripts",
-        "curl https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/ubuntu/50-cloud-init.yaml > /home/$hostname/netplan/50-cloud-init.yaml"            
+        "curl $($netplanInformation.netplanUrl) > $($netplanInformation.netplanOutput)"            
     )
