@@ -75,14 +75,16 @@ param (
         $applCounter++
         $scriptName = "$($app.ToLower()).sh"
         $scriptUrl = "$baseUrl$scriptName"
-        $scriptpath = "home/$hostname/scripts/$scriptName"
+        $basePath = "/home/$hostname/scripts/"
+        $scriptpath = "$basePath$scriptName"
         Write-Host $applCounter "-" $app
         Write-Host "Script URL: $scriptUrl" -ForegroundColor DarkRed
+        Write-Host $scriptname
         Write-Host "Script Path: $scriptpath" -ForegroundColor DarkRed
         poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -Commands @(
             "curl $scriptUrl > /home/$hostname/scripts/$scriptName",
-            "cd /home/$hostname/scripts; chmod +x $scriptName",
-            "ls /home/$hostname/scripts",
-            "cd /home/$hostname/scripts; ./$scriptname"
+            "chmod +x $scriptpath",
+            "ls $basepath",
+            "$scriptpath"
         )    
     }
