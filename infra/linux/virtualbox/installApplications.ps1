@@ -9,7 +9,7 @@ param (
 [STRING]$distroname
 )
 
-    #CREDENTIALS MAKEN VOOR POSHSSH
+    ### NIEUWE PARAMETERS
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
     $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
