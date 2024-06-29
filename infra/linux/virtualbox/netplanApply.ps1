@@ -13,8 +13,6 @@ param (
     #CREDENTIALS AANMAKEN VOOR POSH-SSH
     $SecurePassword = ConvertTo-SecureString -String "$password" -AsPlainText -Force
     $Credential = New-Object -TypeName PSCredential -ArgumentList $Username, $SecurePassword
-    #https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/
-
 
     #FUNCTIE OM TE BEPALEN WELKE NETPLANCONFIGURATIE GEBRUIKT MOET WORDEN
     function Choose-Netplan {
