@@ -7,6 +7,7 @@ param (
 [STRING]$sshPort,
 [STRING]$distroname
 )
+    ### NIEUWE PARAMETERS
     $downloadsPath = "C:\Users\Public\Downloads"
     $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 
