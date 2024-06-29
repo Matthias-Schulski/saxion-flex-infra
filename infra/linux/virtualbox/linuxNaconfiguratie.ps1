@@ -5,6 +5,8 @@ param (
 [STRING]$applications,             
 [STRING]$sshport                   
 )
+    ### NIEUWE PARAMETERS
+    $downloadsPath = "C:\Users\Public\Downloads"
 
 function Download-File {
     param (
@@ -64,7 +66,6 @@ function Download-File {
 
     $VMcredentials = Set-VMCredentials -distroname $distroname
     
-    $downloadsPath = "C:\Users\Public\Downloads"
     # Naconfiguratie en netwerk script downloaden 
     $postConfigScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/installApplications.ps1"
     $installApplicationsPath = "$downloadsPath\installApplications.ps1"
