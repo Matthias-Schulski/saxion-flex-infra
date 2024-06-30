@@ -1,11 +1,27 @@
-# Code by Matthias
-
-# Path to the files that store name and student number
+#####################Variables#####################
+# Paths to the files that store name and student number
 $studentNameFilePath = "$env:Public\student_name.txt"
 $studentNumberFilePath = "$env:Public\student_number.txt"
 
+# Windows Main Script 
 $windowsMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/windows/osdeployment/WindowsDeployment.ps1"
 
+# Linux Main Script AND VHD bestanden  
+[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
+$linuxMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxmain.ps1"
+
+# Install PowerShell 7 Script
+[string]$InstallPowershell7ScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/main/pwsh7install.ps1"
+
+# Install Dependencies Script
+[string]$GeneralScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/InstallDependencies.ps1"
+
+# GitHub API URL for the directory
+$url = "https://api.github.com/repos/Matthias-Schulski/saxion-flex-infra/contents/courses"
+
+#####################Main Script#####################
+
+# Code by Matthias
 # Check if name is already stored
 if (Test-Path $studentNameFilePath) {
     $studentName = (Get-Content $studentNameFilePath -Raw).Trim()
@@ -34,15 +50,12 @@ if (Test-Path $studentNumberFilePath) {
     # Save the student number
     Set-Content -Path $studentNumberFilePath -Value $studentNumber
 }
+
 # Temporary Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
-# Variabele voor config script
-[string]$VHDLinksUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/harddisks.json"
-
-#Code by Stefan
+######  Code by Stefan ###### 
 # Functie om een bestand te downloaden
-pause
 function Download-File {
     param (
         [string]$url,
@@ -57,7 +70,7 @@ function Download-File {
         throw
     }
 }
-pause
+
 # Functie om het OS-type te bepalen
 function Get-OSType {
     param (
@@ -81,14 +94,12 @@ function Get-OSType {
     }
 }
 
+###########################ALGEMEEN#########################
 # Controleer of het script opnieuw gestart moet worden
 $restartFlagFile = "$env:Public\restart_flag.txt"
 
 if (-not (Test-Path $restartFlagFile)) {
-    ###########################ALGEMEEN#########################
-
     # Installatie van PowerShell 7
-    [string]$InstallPowershell7ScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/main/pwsh7install.ps1"
     $installPowershell7ScriptPath = "$env:Public\Downloads\InstallPowershell7.ps1"
 
     # Download en voer het PowerShell 7 installatie script uit
@@ -105,12 +116,10 @@ if (-not (Test-Path $restartFlagFile)) {
     # Verwijder het flag-bestand
     Remove-Item $restartFlagFile
 }
-#Matthias
+
+# Matthias
 # Create an ArrayList
 $courses = New-Object System.Collections.ArrayList
-
-# Define the GitHub API URL for the directory
-$url = "https://api.github.com/repos/Matthias-Schulski/saxion-flex-infra/contents/courses"
 
 # Use Invoke-WebRequest to call the GitHub API
 $response = Invoke-WebRequest -Uri $url -Headers @{ "User-Agent" = "Mozilla/5.0" }
@@ -153,19 +162,18 @@ if ([int]::TryParse($userChoice, [ref]$null) -and $userChoiceIndex -ge 0 -and $u
     Write-Host "Invalid choice. Please run the script again and enter a valid number."
 }
 
-#Stefan
+###########################Code by Stefan#########################
 # Installeer Dependencies
-[string]$GeneralScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/InstallDependencies.ps1"
 $generalScriptPath = "$env:Public\Downloads\GeneralScript.ps1"
 Download-File -url $GeneralScriptUrl -output $generalScriptPath
 & pwsh -File $generalScriptPath
-pause
+
 # Download de JSON-bestanden
 $configLocalPath = "$env:Public\Downloads\config.json"
 $vhdLinksLocalPath = "$env:Public\Downloads\vhdlinks.json"
 Download-File -url $ConfigUrl -output $configLocalPath
 Download-File -url $VHDLinksUrl -output $vhdLinksLocalPath
-pause
+
 # Lees de JSON configuratie
 $config = Get-Content $configLocalPath -Raw | ConvertFrom-Json
 $vhdLinks = Get-Content $vhdLinksLocalPath -Raw | ConvertFrom-Json
@@ -192,9 +200,8 @@ foreach ($vm in $config.VMs) {
     }
 }
 
+############################LINUX############################
 if ($hasLinux) {
-    ############################LINUX############################
-    $linuxMainScriptUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/linuxmain.ps1"
     $linuxMainScriptPath = "$env:Public\Downloads\LinuxMainScript.ps1"
     Download-File -url $linuxMainScriptUrl -output $linuxMainScriptPath
 
@@ -245,14 +252,11 @@ if ($hasLinux) {
     }
 }
 
+###########################WINDOWS###########################
 if ($hasWindows) {
-    ###########################WINDOWS###########################
     $windowsMainScriptPath = "$env:Public\Downloads\WindowsDeployment.ps1"
     Download-File -url $windowsMainScriptUrl -output $windowsMainScriptPath
     & pwsh -File $windowsMainScriptPath -CourseName $chosenCourse
 }
-
-# Herstel de oorspronkelijke Execution Policy
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
 
 Write-Output "Script execution completed successfully."
