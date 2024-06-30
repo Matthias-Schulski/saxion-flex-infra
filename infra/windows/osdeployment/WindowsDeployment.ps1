@@ -1,23 +1,29 @@
+# Parameters
 param (
     [string]$CourseName
 )
 
-
+# Variables
+# Paths to student information files
 $studentNamePath = "C:\Users\Public\student_name.txt"
 $studentNumberPath = "C:\Users\Public\student_number.txt"
 
+# Base directory and subdirectory paths
 $baseDir = "C:\SAX-FLEX-INFRA"
 $subFolderPath = "C:\SAX-FLEX-INFRA\BASE-FILES"
 $courseJsonUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course2.json"
 
-# Check if CourseName is provided
+# Paths for VirtualBox
+$vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+$vboxGuestAdditionsPath = "C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
+
+# Check if CourseName is provided, otherwise use default value
 if (-not $CourseName) {
     Write-Host "Error: CourseName is required."
     $CourseName = "course2.json"
 }
 
-# Read student name and number from file
-
+# Ensure student name and number files exist
 if (-not (Test-Path -Path $studentNamePath)) {
     Write-Host "Error: $studentNamePath does not exist."
     exit
@@ -27,22 +33,22 @@ if (-not (Test-Path -Path $studentNumberPath)) {
     exit
 }
 
+# Read student name and number from files
 $studentName = Get-Content -Path $studentNamePath -Raw
 $studentNumber = Get-Content -Path $studentNumberPath -Raw
 
+# Function to check and create environment directories
 function Check-Environment {
-    # Check if the base folder exists
+    # Check if the base directory exists, create if not
     if (-not (Test-Path -Path $baseDir)) {
-        # If it doesn't exist, create it
         New-Item -Path $baseDir -ItemType Directory
-        Write-Output "Created folder: $baseFolderPath"
+        Write-Output "Created folder: $baseDir"
     } else {
         Write-Output "Folder already exists: $baseDir"
     }
 
-    # Check if the subfolder exists
+    # Check if the subdirectory exists, create if not
     if (-not (Test-Path -Path $subFolderPath)) {
-        # If it doesn't exist, create it
         New-Item -Path $subFolderPath -ItemType Directory
         Write-Output "Created folder: $subFolderPath"
     } else {
@@ -50,9 +56,7 @@ function Check-Environment {
     }
 }
 
-# Define the function to check the VHD file
-
-# Define the function to download the VHD file
+# Function to download VHD files
 function Download-VHD {
     param (
         [string]$OSType,
@@ -68,7 +72,7 @@ function Download-VHD {
     Write-Output "Download complete. File saved to $destinationPath."
 }
 
-# Define the function to check the VHD file
+# Function to check if the VHD file exists, download if necessary
 function Check-VHDFile {
     param (
         [string]$OSVersion
@@ -99,9 +103,8 @@ function Check-VHDFile {
     }
 }
 
+# Function to check and download unattend.xml file if necessary
 function Check-unattend.xml {
-
-
     # Define the XML file path
     $unattendFilePath = "C:\SAX-FLEX-INFRA\BASE-FILES\unattend.xml"
 
@@ -109,35 +112,37 @@ function Check-unattend.xml {
     if (Test-Path -Path $unattendFilePath) {
         Write-Output "Unattend file exists: $unattendFilePath"
     } else {
-
-    # Download the unattend file
-    Write-Output "Downloading unattend file"
-    $DownloadPath = "https://raw.githubusercontent.com/saxion-flex-infra/blob/main/infra/windows/osdeployment/unattend.xml"
-    Invoke-WebRequest -Uri $DownloadPath -OutFile $unattendFilePath
-    Write-Output "Download complete. File saved to $unattendFilePath."
+        # Download the unattend file
+        Write-Output "Downloading unattend file"
+        $DownloadPath = "https://raw.githubusercontent.com/saxion-flex-infra/blob/main/infra/windows/osdeployment/unattend.xml"
+        Invoke-WebRequest -Uri $DownloadPath -OutFile $unattendFilePath
+        Write-Output "Download complete. File saved to $unattendFilePath."
     }
 }
 
-# Fetch the JSON data
-try {
-    $courseData = Invoke-RestMethod -Uri $courseJsonUrl -Method Get -ErrorAction Stop
+# Function to fetch course data from the provided URL
+function Fetch-CourseData {
+    try {
+        return Invoke-RestMethod -Uri $courseJsonUrl -Method Get -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to retrieve JSON data. Please check the course name and URL."
+        exit
+    }
 }
-catch {
-    Write-Error "Failed to retrieve JSON data. Please check the course name and URL."
-    exit
-}
-# Call the function to perform the environment check
+
+# Main script starts here
+
+# Check the environment and create necessary directories
 Check-Environment
 
-# Define the function to perform the environment check
-
+# Fetch the JSON data for the course
+$courseData = Fetch-CourseData
 
 # Create the course directory
 $courseDir = Join-Path -Path $baseDir -ChildPath "Courses\$CourseName"
 New-Item -ItemType Directory -Force -Path $courseDir
 
-
-# Process each VM in the JSON
+# Process each VM in the JSON data
 foreach ($vm in $courseData.VMs) {
     if ($vm.Platform -eq "Windows") {
         # VM details from JSON
@@ -149,14 +154,13 @@ foreach ($vm in $courseData.VMs) {
         $varKeyboard = "$($courseData.EnvironmentVariables.KeyboardLayout)"
         $namingVariable = "$vmName-$CourseName"
 
+        # Check if the VHD file exists, download if necessary
         Check-VHDFile($vm.OSVersion)
 
         # Define paths
         $vhdPath = Join-Path -Path $baseDir -ChildPath "BASE-FILES\$($vm.OSVersion).vhd"
         $newVhdPath = Join-Path -Path $courseDir -ChildPath "VHD-$namingVariable.vhd"  # Standardized VHD naming
         $unattendedPath = Join-Path -Path $baseDir -ChildPath 'BASE-FILES\unattend.xml'
-        $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
-        $vboxGuestAdditionsPath = "C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"  # Path to VBoxGuestAdditions.iso
 
         # Copy and rename VHD
         Copy-Item -Path $vhdPath -Destination $newVhdPath
@@ -193,7 +197,7 @@ foreach ($vm in $courseData.VMs) {
             Write-Host "Role script for $role has been downloaded and saved to $applicationDirectory"
         }
 
-        # Copy and edit Autounattend.xml (assuming $studentName and $studentNumber are defined elsewhere)
+        # Copy and edit Autounattend.xml
         $unattendedContent = Get-Content -Path $unattendedPath -Raw
         $unattendedContent = $unattendedContent.Replace('var-username', $studentName).Replace('var-pc-name', $studentNumber).Replace('varLanguage', $varLanguage).Replace('varKeyboard', $varKeyboard)
         Set-Content -Path "$($DriveLetter):\Windows\Panther\unattend.xml" -Value $unattendedContent
