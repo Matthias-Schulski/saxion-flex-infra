@@ -11,7 +11,7 @@ param (
     [string]$ConfigureNetworkPath
 )
 
-# Variabelen
+# Variables
 $previousExecutionPolicy = Get-ExecutionPolicy
 $ConfigureNetworkUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/ConfigureNetwork.ps1"
 $CreateVM1Url = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/linux/virtualbox/createVM.ps1"
@@ -23,10 +23,10 @@ $modifyVMSettingsLocalPath = "$env:Public\Downloads\ModifyVMSettings.ps1"
 $createdVMsPath = "$env:Public\created_vms.txt"
 $logFilePath = "$env:Public\LinuxMainScript.log"
 
-# Tijdelijk wijzigen van de Execution Policy om het uitvoeren van scripts toe te staan
+# Temporarily change the Execution Policy to allow script execution
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
-# Functie om een bestand te downloaden
+# Function to download a file
 function Download-File {
     param (
         [string]$url,
@@ -42,7 +42,7 @@ function Download-File {
     }
 }
 
-# Log functie
+# Log function
 function Log-Message {
     param (
         [string]$message
@@ -53,89 +53,50 @@ function Log-Message {
     Add-Content -Path $logFilePath -Value $logMessage
 }
 
-# Hoofdscript
+# Main script
 
-# Controleer of VBoxManage beschikbaar is
+# Check if VBoxManage is available
 if (-not (Test-Path $vboxManagePath)) {
     Log-Message "VBoxManage not found. Ensure VirtualBox is installed."
     throw "VBoxManage not found."
 }
 
-# Download de JSON-bestanden en de scripts
+# Download the JSON files and scripts
 Download-File -url $ConfigureNetworkUrl -output $configureNetworkPath
 Download-File -url $CreateVM1Url -output $createVM1LocalPath
 Download-File -url $ModifyVMSettingsUrl -output $modifyVMSettingsLocalPath
 
-# Controleer of het bestand met aangemaakte VM's bestaat
+# Check if the file with created VMs exists
 if (-not (Test-Path $createdVMsPath)) {
     New-Item -ItemType File -Force -Path $createdVMsPath
 }
 
-# Lees de lijst van aangemaakte VM's en filter lege regels en dubbele invoer
+# Read the list of created VMs and filter empty lines and duplicate entries
 $createdVMs = Get-Content $createdVMsPath -Raw -ErrorAction SilentlyContinue | Out-String -ErrorAction SilentlyContinue
 $createdVMs = $createdVMs -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" } | Sort-Object -Unique
 
 Write-Output "List of created VMs:"
 $createdVMs | ForEach-Object { Write-Output " - $_" }
 
-Write-Output "Checking for VM: '$VMName'"
+Log-Message "Creating new VM: $VMName"
+# Call the CreateVM1.ps1 script with the correct parameters
+$arguments = @(
+    "-VMName", $VMName,
+    "-VHDUrl", $VHDUrl,
+    "-OSType", $OSType,
+    "-DistroName", $DistroName,
+    "-MemorySize", $MemorySize,
+    "-CPUs", $CPUs,
+    "-NetworkTypes", $NetworkTypes,
+    "-Applications", $Applications,
+    "-ConfigureNetworkPath", $configureNetworkPath
+)
+& pwsh -File $createVM1LocalPath @arguments
 
-# Check if the VM already exists
-$vmExists = $false
-foreach ($createdVM in $createdVMs) {
-    Log-Message "Comparing '$VMName' with '$createdVM'"
-    if ($createdVM.Trim() -eq $VMName) {
-        Log-Message "Found existing VM: '$createdVM'"
-        $vmExists = $true
-        break
-    }
-}
+# Add the name of the created VM to created_vms.txt
+Add-Content -Path $createdVMsPath -Value $VMName
 
-if ($vmExists) {
-    Log-Message "VM $VMName already exists. Checking if it's running."
-    $vmState = & "$vboxManagePath" showvminfo "$VMName" --machinereadable | Select-String -Pattern "^VMState=" | ForEach-Object { $_.Line.Split("=")[1].Trim('"') }
-    if ($vmState -eq "running") {
-        Log-Message "VM $VMName is already running. Prompting user for permission to shut down."
-        $userInput = Read-Host "VM $VMName is currently running. Do you want to shut it down to apply changes? (yes/no)"
-        if ($userInput -eq "yes") {
-            & "$vboxManagePath" controlvm $VMName acpipowerbutton
-            Start-Sleep -Seconds 10
-        } else {
-            Log-Message "Skipping changes for VM $VMName."
-            exit
-        }
-    }
-    # Call the script to modify the VM settings
-    $arguments = @(
-        "-VMName", $VMName,
-        "-MemorySize", $MemorySize,
-        "-CPUs", $CPUs,
-        "-NetworkTypes", $NetworkTypes,
-        "-Applications", $Applications,
-        "-ConfigureNetworkPath", $configureNetworkPath
-    )
-    & pwsh -File $modifyVMSettingsLocalPath @arguments
-} else {
-    Log-Message "Creating new VM: $VMName"
-    # Roep het CreateVM1.ps1 script aan met de juiste parameters
-    $arguments = @(
-        "-VMName", $VMName,
-        "-VHDUrl", $VHDUrl,
-        "-OSType", $OSType,
-        "-DistroName", $DistroName,
-        "-MemorySize", $MemorySize,
-        "-CPUs", $CPUs,
-        "-NetworkTypes", $NetworkTypes,
-        "-Applications", $Applications,
-        "-ConfigureNetworkPath", $configureNetworkPath
-    )
-    & pwsh -File $createVM1LocalPath @arguments
-
-    # Voeg de naam van de aangemaakte VM toe aan created_vms.txt
-    Add-Content -Path $createdVMsPath -Value $VMName
-}
-
-# Herstellen van de oorspronkelijke Execution Policy
+# Restore the original Execution Policy
 Set-ExecutionPolicy -ExecutionPolicy $previousExecutionPolicy -Scope Process -Force
 
 Log-Message "Script execution completed successfully."
