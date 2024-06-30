@@ -11,7 +11,7 @@ $studentNumberPath = "C:\Users\Public\student_number.txt"
 # Base directory and subdirectory paths
 $baseDir = "C:\SAX-FLEX-INFRA"
 $subFolderPath = "C:\SAX-FLEX-INFRA\BASE-FILES"
-$courseJsonUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/course2.json"
+$courseJsonUrl = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/courses/$($CourseName)"
 
 # Paths for VirtualBox
 $vboxManagePath = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
