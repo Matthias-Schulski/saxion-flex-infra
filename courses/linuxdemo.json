@@ -24,8 +24,7 @@
       "VMMemorySize": 2048,
       "VMApplications": [
         "Nginx",
-        "Docker",
-        "Minikube"
+        "Docker"
       ]
     },
     {
