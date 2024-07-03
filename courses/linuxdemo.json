@@ -5,6 +5,7 @@
     "Subnets": [
       {
         "Name": "Subnet1",
+        "_comment": "Bij de IP-range van netwerk moet er .1/ worden gebruikt als laatste octect, anders werkt het netwerk niet.",
         "Network": "192.168.2.1/24",
         "Type": "host-only",
         "AdapterName": "vboxnet0"
@@ -19,7 +20,6 @@
       "DistroVariant": "Server",
       "DistroVersion": "24.04",
       "VMNetworkTypes": ["Subnet1"],
-      "VMIPAddresses": ["172.168.0.10", "192.168.57.10", "192.168.57.11"],
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
       "VMApplications": [
@@ -34,7 +34,6 @@
       "DistroVariant": "Server",
       "DistroVersion": "12",
       "VMNetworkTypes": ["Subnet1"],
-      "VMIPAddresses": ["172.168.0.10", "192.168.57.10", "192.168.57.11"],
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
       "VMApplications": [
