@@ -1,0 +1,71 @@
+{
+  "CourseName": "Demo",
+  "EnvironmentVariables": {
+    "ActiveDirectoryDomain": "",
+    "Language": "nl-NL",
+    "KeyboardLayout": "0413:00020409",
+    "NamingScheme": "$vmName-$CourseName",
+    "Subnets": [
+      {
+        "Name": "Subnet1",
+        "Network": "192.168.2.1/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet0"
+      },
+      {
+        "Name": "Subnet2",
+        "Network": "192.168.3.1/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet1"
+      },
+      {
+        "Name": "Subnet3",
+        "Network": "192.168.4.1/24",
+        "Type": "host-only",
+        "AdapterName": "vboxnet2"
+      },
+      {
+        "Name": "Subnet4",
+        "Network": "",
+        "Type": "bridged",
+        "AdapterName": "bridged"
+      },
+      {
+        "Name": "NATNetwork",
+        "Network": "192.168.57.1/24",
+        "Type": "natnetwork",
+        "AdapterName": "natnet1"
+      }
+    ]
+  },
+  "VMs": [
+    {
+      "VMName": "DemoVM1",
+      "Platform": "Windows",
+      "OSVersion": "Windows server 2019",
+      "VMCpuCount": 2,
+      "VMMemorySize": 2048,
+      "VMApplications": [
+        "7zip",
+        "googlechrome"
+      ],
+      "Roles": [
+        "active_directory"
+      ]
+    },
+   {
+      "VMName": "DemoVM2",
+      "Platform": "Windows",
+      "OSVersion": "Windows server 2022",
+      "VMCpuCount": 2,
+      "VMMemorySize": 2048,
+      "VMApplications": [
+        "7zip",
+        "googlechrome"
+      ],
+      "Roles": [
+        "active_directory"
+      ]
+    } 
+  ]
+}
