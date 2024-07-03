@@ -121,8 +121,8 @@ param (
         #"sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y",  #Na het uitvoeren van dit script moet de upgrade gedaan worden door de gebruiker.
         "sudo apt install -y bzip2 tar",                        #Bzip wordt geïnstalleerd ter voorbereiding voor guestadditions     
         "sudo apt install -y curl",                             
-        "sudo mount /dev/cdrom /mnt,                            #Gebruiker kan na afloop van het script naar de directory /mnt gaan en daar het commando "sh ./VBoxLinuxAdditions.run" uitvoeren om guestadditions te installeren. 
+        "sudo mount /dev/cdrom /mnt,                            #Gebruiker kan na afloop van het script naar de directory /mnt gaan en daar het commando 'sh ./VBoxLinuxAdditions.run' uitvoeren om guestadditions te installeren.
         "mkdir /home/$hostname/netplan",                        
         "mkdir /home/$hostname/scripts",
-        "curl $($netplanInformation.netplanUrl) > $($netplanInformation.netplanOutput)"            
-    )
+        "curl $($netplanInformation.netplanUrl) > $($netplanInformation.netplanOutput)"
+        )
