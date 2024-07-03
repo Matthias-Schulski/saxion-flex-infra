@@ -23,8 +23,8 @@
       "VMCpuCount": 2,
       "VMMemorySize": 2048,
       "VMApplications": [
-        "Nginx",
-        "Docker"
+        "bginx",
+        "docker"
       ]
     },
     {
