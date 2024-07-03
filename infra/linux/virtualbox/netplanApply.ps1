@@ -118,11 +118,11 @@ param (
     #FUNCTIE AANROEPEN OM COMMANDO'S UIT TE VOEREN
     poshSSHcommand -ComputerName "127.0.0.1" -Port $sshPort -Credential $credential -commands @(
         "sudo apt update",
-        #"sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y",
-        "sudo apt install -y bzip2 tar",
-        "sudo apt install -y curl",
-        "sudo mount /dev/cdrom /mnt",
-        "mkdir /home/$hostname/netplan",
+        #"sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y",  #Na het uitvoeren van dit script moet de upgrade gedaan worden door de gebruiker.
+        "sudo apt install -y bzip2 tar",                        #Bzip wordt geïnstalleerd ter voorbereiding voor guestadditions     
+        "sudo apt install -y curl",                             
+        "sudo mount /dev/cdrom /mnt,                            #Gebruiker kan na afloop van het script naar de directory /mnt gaan en daar het commando "sh ./VBoxLinuxAdditions.run" uitvoeren om guestadditions te installeren. 
+        "mkdir /home/$hostname/netplan",                        
         "mkdir /home/$hostname/scripts",
         "curl $($netplanInformation.netplanUrl) > $($netplanInformation.netplanOutput)"            
     )
