@@ -104,7 +104,7 @@ function Check-VHDFile {
 }
 
 # Function to check and download unattend.xml file if necessary
-function Check-unattend.xml {
+function Check-unattend {
     # Define the XML file path
     $unattendFilePath = "C:\SAX-FLEX-INFRA\BASE-FILES\unattend.xml"
 
@@ -141,6 +141,9 @@ $courseData = Fetch-CourseData
 # Create the course directory
 $courseDir = Join-Path -Path $baseDir -ChildPath "Courses\$CourseName"
 New-Item -ItemType Directory -Force -Path $courseDir
+
+#Download or check the unnattend.xml file
+Check-unattend
 
 # Process each VM in the JSON data
 foreach ($vm in $courseData.VMs) {
