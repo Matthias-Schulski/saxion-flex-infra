@@ -210,7 +210,7 @@ foreach ($vm in $courseData.VMs) {
 
         # Create a VM in VirtualBox
         $vmFullName = "VM-$namingVariable"
-        & $vboxManagePath createvm --name "$vmFullName" --ostype="Windows2022_64" --register
+        & $vboxManagePath createvm --name "$vmFullName" --ostype "Windows2022_64" --register
         & $vboxManagePath modifyvm "$vmFullName" --cpus $cpu --memory $ram
         & $vboxManagePath storagectl "$vmFullName" --name "SATA-Controller-$namingVariable" --add sata --controller IntelAhci
         & $vboxManagePath storageattach "$vmFullName" --storagectl "SATA-Controller-$namingVariable" --port 0 --device 0 --type hdd --medium $newVhdPath
@@ -218,7 +218,13 @@ foreach ($vm in $courseData.VMs) {
         # Attach the VirtualBox Guest Additions ISO
         & $vboxManagePath storageattach "$vmFullName" --storagectl "SATA-Controller-$namingVariable" --port 1 --device 0 --type dvddrive --medium $vboxGuestAdditionsPath
 
-        Write-Host "VM $vmName has been created and configured."
+        Write-Host "VM $vmFullName has been created and configured."
+
+        # Start the VM
+        & $vboxManagePath startvm "$vmFullName" --type headless
+
+        Write-Host "VM $vmFullName has been started."
+
     }
 }
 
