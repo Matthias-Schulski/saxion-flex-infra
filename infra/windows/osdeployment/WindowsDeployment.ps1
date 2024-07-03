@@ -114,7 +114,7 @@ function Check-unattend {
     } else {
         # Download the unattend file
         Write-Output "Downloading unattend file"
-        $DownloadPath = "https://raw.githubusercontent.com/saxion-flex-infra/blob/main/infra/windows/osdeployment/unattend.xml"
+        $DownloadPath = "https://raw.githubusercontent.com/Matthias-Schulski/saxion-flex-infra/main/infra/windows/osdeployment/unattend.xml"
         Invoke-WebRequest -Uri $DownloadPath -OutFile $unattendFilePath
         Write-Output "Download complete. File saved to $unattendFilePath."
     }
